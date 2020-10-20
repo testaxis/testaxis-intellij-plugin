@@ -1,19 +1,19 @@
 <idea-plugin>
-    <id>com.github.casperboone.testaxisintellijplugin</id>
+    <id>io.testaxis.intellijplugin</id>
     <name>testaxis-intellij-plugin</name>
-    <vendor>casperboone</vendor>
+    <vendor>testaxis</vendor>
 
     <!-- Product and plugin compatibility requirements -->
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="com.github.casperboone.testaxisintellijplugin.services.MyApplicationService"/>
-        <projectService serviceImplementation="com.github.casperboone.testaxisintellijplugin.services.MyProjectService"/>
+        <applicationService serviceImplementation="io.testaxis.intellijplugin.services.MyApplicationService"/>
+        <projectService serviceImplementation="io.testaxis.intellijplugin.services.MyProjectService"/>
     </extensions>
 
     <applicationListeners>
-        <listener class="com.github.casperboone.testaxisintellijplugin.listeners.MyProjectManagerListener"
+        <listener class="io.testaxis.intellijplugin.listeners.MyProjectManagerListener"
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </applicationListeners>
 </idea-plugin>

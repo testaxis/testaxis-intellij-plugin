@@ -1,4 +1,4 @@
-package com.github.casperboone.testaxisintellijplugin
+package io.testaxis.intellijplugin
 
 import com.intellij.AbstractBundle
 import org.jetbrains.annotations.NonNls

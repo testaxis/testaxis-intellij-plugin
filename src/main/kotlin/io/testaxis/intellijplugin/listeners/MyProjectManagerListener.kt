@@ -1,8 +1,8 @@
-package com.github.casperboone.testaxisintellijplugin.listeners
+package io.testaxis.intellijplugin.listeners
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManagerListener
-import com.github.casperboone.testaxisintellijplugin.services.MyProjectService
+import io.testaxis.intellijplugin.services.MyProjectService
 
 internal class MyProjectManagerListener : ProjectManagerListener {
 

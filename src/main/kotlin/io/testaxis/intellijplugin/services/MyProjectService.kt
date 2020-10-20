@@ -1,7 +1,7 @@
-package com.github.casperboone.testaxisintellijplugin.services
+package io.testaxis.intellijplugin.services
 
 import com.intellij.openapi.project.Project
-import com.github.casperboone.testaxisintellijplugin.MyBundle
+import io.testaxis.intellijplugin.MyBundle
 
 class MyProjectService(project: Project) {
 
