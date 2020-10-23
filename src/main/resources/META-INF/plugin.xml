@@ -10,10 +10,21 @@
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="io.testaxis.intellijplugin.services.MyApplicationService"/>
         <projectService serviceImplementation="io.testaxis.intellijplugin.services.MyProjectService"/>
+
+        <toolWindow id="TestAxis" anchor="bottom"
+                    factoryClass="io.testaxis.intellijplugin.toolwindow.TestReportToolWindowFactory"/>
     </extensions>
 
     <applicationListeners>
         <listener class="io.testaxis.intellijplugin.listeners.MyProjectManagerListener"
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </applicationListeners>
+
+    <actions>
+        <action id="io.testaxis.intellijplugin.actions.DemoAction" class="io.testaxis.intellijplugin.actions.DemoAction"
+                text="TestAxis Demo Action" description="Cool action">
+            <add-to-group group-id="ToolsMenu" anchor="first"/>
+        </action>
+    </actions>
+
 </idea-plugin>
