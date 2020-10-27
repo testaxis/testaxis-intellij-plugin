@@ -20,11 +20,4 @@
                   topic="com.intellij.openapi.project.ProjectManagerListener"/>
     </applicationListeners>
 
-    <actions>
-        <action id="io.testaxis.intellijplugin.actions.DemoAction" class="io.testaxis.intellijplugin.actions.DemoAction"
-                text="TestAxis Demo Action" description="Cool action">
-            <add-to-group group-id="ToolsMenu" anchor="first"/>
-        </action>
-    </actions>
-
 </idea-plugin>
