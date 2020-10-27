@@ -12,7 +12,7 @@ class TestReportToolWindowFactory : ToolWindowFactory {
         val contentFactory = ContentFactory.SERVICE.getInstance()
 
         toolWindow.contentManager.addContent(
-            contentFactory.createContent(BuildsTab(project).create(), "Builds", false)
+            contentFactory.createContent(BuildsTab().create(), "Builds", false)
         )
 
         toolWindow.contentManager.addContent(

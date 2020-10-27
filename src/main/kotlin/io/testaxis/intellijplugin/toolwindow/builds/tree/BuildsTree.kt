@@ -8,18 +8,15 @@ import com.intellij.ui.tree.StructureTreeModel
 import com.intellij.ui.treeStructure.SimpleTreeStructure
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.ui.tree.TreeUtil
+import io.testaxis.intellijplugin.Build
+import io.testaxis.intellijplugin.TestCaseExecution
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.TreeModel
 import javax.swing.tree.TreeSelectionModel
 
-data class FakeTestCase(val name: String, val passed: Boolean = true)
-data class FakeBuild(val name: String, val testCases: List<FakeTestCase>) {
-    fun wasSuccessful() = testCases.all { it.passed }
-}
-
 class BuildsTree : Disposable {
-    val buildSelectedListeners = mutableListOf<(FakeBuild) -> Unit>()
-    val testCaseSelectedListeners = mutableListOf<(FakeTestCase) -> Unit>()
+    val buildSelectedListeners = mutableListOf<(Build) -> Unit>()
+    val testCaseSelectedListeners = mutableListOf<(TestCaseExecution) -> Unit>()
 
     private val tree = Tree().apply {
         emptyText.text = "There are no builds to show yet."
@@ -46,13 +43,13 @@ class BuildsTree : Disposable {
 
     fun render() = tree
 
-    fun updateData(data: List<FakeBuild>) {
+    fun updateData(data: List<Build>) {
         tree.invalidate()
 
         tree.model = createTreeModel(data)
     }
 
-    private fun createTreeModel(data: List<FakeBuild>): TreeModel {
+    private fun createTreeModel(data: List<Build>): TreeModel {
         val root = RootNode(data)
         val treeModel = StructureTreeModel(SimpleTreeStructure.Impl(root), this)
         return AsyncTreeModel(treeModel, this)
