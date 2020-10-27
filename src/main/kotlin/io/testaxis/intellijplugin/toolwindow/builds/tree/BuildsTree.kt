@@ -9,6 +9,7 @@ import com.intellij.ui.treeStructure.SimpleTreeStructure
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.ui.tree.TreeUtil
 import javax.swing.tree.DefaultMutableTreeNode
+import javax.swing.tree.TreeModel
 import javax.swing.tree.TreeSelectionModel
 
 data class FakeTestCase(val name: String, val passed: Boolean = true)
@@ -16,62 +17,45 @@ data class FakeBuild(val name: String, val testCases: List<FakeTestCase>) {
     fun wasSuccessful() = testCases.all { it.passed }
 }
 
-val fakeData = listOf(
-    FakeBuild("Build PR #2", listOf(
-        FakeTestCase("It persists a user's username"),
-        FakeTestCase("It persists a user's password"),
-        FakeTestCase("It persists a user's address"),
-        FakeTestCase("It persists a user's email"),
-    )),
-    FakeBuild("Build PR #3", listOf(
-        FakeTestCase("It persists a user's username", passed = false),
-        FakeTestCase("It persists a user's password", passed = false),
-        FakeTestCase("It persists a user's address"),
-        FakeTestCase("It persists a user's email"),
-    )),
-    FakeBuild("Build PR #4", listOf(
-        FakeTestCase("It persists a user's username", passed = false),
-        FakeTestCase("It persists a user's password"),
-        FakeTestCase("It persists a user's address"),
-        FakeTestCase("It persists a user's email"),
-    )),
-)
-
 class BuildsTree : Disposable {
     val buildSelectedListeners = mutableListOf<(FakeBuild) -> Unit>()
     val testCaseSelectedListeners = mutableListOf<(FakeTestCase) -> Unit>()
 
-    fun createTree(): Tree {
-        val root = RootNode(fakeData)
+    private val tree = Tree().apply {
+        emptyText.text = "There are no builds to show yet."
 
-        val treeModel = StructureTreeModel(SimpleTreeStructure.Impl(root), this)
-        val asyncTreeModel = AsyncTreeModel(treeModel, this)
+        isRootVisible = false
+        TreeSpeedSearch(this).comparator = SpeedSearchComparator(false)
+        TreeUtil.installActions(this)
+        selectionModel.selectionMode = TreeSelectionModel.SINGLE_TREE_SELECTION
+        isEditable = false
 
-        val tree = Tree(asyncTreeModel)
-        tree.emptyText.text = "There are no builds to show yet."
+        rowHeight = 0
 
-        tree.isRootVisible = false
-        TreeSpeedSearch(tree).comparator = SpeedSearchComparator(false)
-        TreeUtil.installActions(tree)
-        tree.selectionModel.selectionMode = TreeSelectionModel.SINGLE_TREE_SELECTION
-        tree.isEditable = false
-
-        tree.rowHeight = 0
-
-        tree.addTreeSelectionListener {
+        addTreeSelectionListener {
             when (val simpleNode = (it.path.lastPathComponent as DefaultMutableTreeNode).userObject) {
                 is BuildNode -> {
-                    println("Selected a build: ${simpleNode.build}")
                     buildSelectedListeners.forEach { it(simpleNode.build) }
                 }
                 is TestCaseNode -> {
-                    println("Selected a test: ${simpleNode.testCase}")
                     testCaseSelectedListeners.forEach { it(simpleNode.testCase) }
                 }
             }
         }
+    }
 
-        return tree
+    fun render() = tree
+
+    fun updateData(data: List<FakeBuild>) {
+        tree.invalidate()
+
+        tree.model = createTreeModel(data)
+    }
+
+    private fun createTreeModel(data: List<FakeBuild>): TreeModel {
+        val root = RootNode(data)
+        val treeModel = StructureTreeModel(SimpleTreeStructure.Impl(root), this)
+        return AsyncTreeModel(treeModel, this)
     }
 
     override fun dispose() {
