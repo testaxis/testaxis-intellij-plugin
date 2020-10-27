@@ -2,7 +2,7 @@ package io.testaxis.intellijplugin.toolwindow.builds.views
 
 import com.intellij.ui.components.Label
 import com.intellij.ui.layout.panel
-import io.testaxis.intellijplugin.toolwindow.builds.tree.FakeBuild
+import io.testaxis.intellijplugin.Build
 
 class BuildDetailsRightView : RightView {
     private val buildLabel = Label("the name of the build")
@@ -25,7 +25,7 @@ class BuildDetailsRightView : RightView {
         panel.isVisible = true
     }
 
-    fun setBuild(build: FakeBuild) = with(build) {
-        buildLabel.text = name
+    fun setBuild(build: Build) = with(build) {
+        buildLabel.text = label()
     }
 }

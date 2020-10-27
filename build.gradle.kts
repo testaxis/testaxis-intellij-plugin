@@ -41,6 +41,8 @@ repositories {
     jcenter()
 }
 dependencies {
+    implementation("io.github.rybalkinsd:kohttp:0.12.0")
+    implementation("io.github.rybalkinsd:kohttp-jackson:0.12.0")
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.14.1")
 }
 
@@ -60,7 +62,6 @@ intellij {
 // Configure detekt plugin.
 // Read more: https://detekt.github.io/detekt/kotlindsl.html
 detekt {
-    config = files("./detekt-config.yml")
     buildUponDefaultConfig = true
 
     reports {

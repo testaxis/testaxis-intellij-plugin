@@ -9,6 +9,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="io.testaxis.intellijplugin.services.MyApplicationService"/>
+        <applicationService serviceImplementation="io.testaxis.intellijplugin.services.TestAxisApiService"/>
         <projectService serviceImplementation="io.testaxis.intellijplugin.services.MyProjectService"/>
 
         <toolWindow id="TestAxis" anchor="bottom"

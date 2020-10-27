@@ -2,7 +2,7 @@ package io.testaxis.intellijplugin.toolwindow.builds.views
 
 import com.intellij.ui.components.Label
 import com.intellij.ui.layout.panel
-import io.testaxis.intellijplugin.toolwindow.builds.tree.FakeTestCase
+import io.testaxis.intellijplugin.TestCaseExecution
 
 class TestCaseDetailsRightView : RightView {
     private val testLabel = Label("the name of the test")
@@ -25,7 +25,7 @@ class TestCaseDetailsRightView : RightView {
         panel.isVisible = true
     }
 
-    fun setBuild(build: FakeTestCase) = with(build) {
+    fun setBuild(build: TestCaseExecution) = with(build) {
         testLabel.text = name
     }
 }

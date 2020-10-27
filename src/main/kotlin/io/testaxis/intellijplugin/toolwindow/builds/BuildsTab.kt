@@ -1,54 +1,19 @@
 package io.testaxis.intellijplugin.toolwindow.builds
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.components.ServiceManager
 import com.intellij.ui.OnePixelSplitter
 import com.intellij.ui.ToolbarDecorator
-import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.layout.panel
+import com.intellij.util.ui.components.BorderLayoutPanel
+import io.testaxis.intellijplugin.services.TestAxisApiService
 import io.testaxis.intellijplugin.toolwindow.builds.tree.BuildsTree
-import io.testaxis.intellijplugin.toolwindow.builds.tree.FakeBuild
-import io.testaxis.intellijplugin.toolwindow.builds.tree.FakeTestCase
 import io.testaxis.intellijplugin.toolwindow.builds.views.BuildDetailsRightView
 import io.testaxis.intellijplugin.toolwindow.builds.views.RightView
 import io.testaxis.intellijplugin.toolwindow.builds.views.TestCaseDetailsRightView
-import java.awt.BorderLayout
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import javax.swing.JComponent
-import javax.swing.JPanel
-import javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
-import javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED
-
-// Temporary fake data
-val fakeData = mutableListOf(
-    FakeBuild(
-        "Build PR #2",
-        listOf(
-            FakeTestCase("It persists a user's username"),
-            FakeTestCase("It persists a user's password"),
-            FakeTestCase("It persists a user's address"),
-            FakeTestCase("It persists a user's email"),
-        )
-    ),
-    FakeBuild(
-        "Build PR #3",
-        listOf(
-            FakeTestCase("It persists a user's username", passed = false),
-            FakeTestCase("It persists a user's password", passed = false),
-            FakeTestCase("It persists a user's address"),
-            FakeTestCase("It persists a user's email"),
-        )
-    ),
-    FakeBuild(
-        "Build PR #4",
-        listOf(
-            FakeTestCase("It persists a user's username", passed = false),
-            FakeTestCase("It persists a user's password"),
-            FakeTestCase("It persists a user's address"),
-            FakeTestCase("It persists a user's email"),
-        )
-    ),
-    FakeBuild("Build PR #5", emptyList())
-)
 
 private class RightViewStateManager(vararg val views: RightView) {
     init {
@@ -67,7 +32,7 @@ private class RightViewStateManager(vararg val views: RightView) {
 
 const val SPLITTER_PROPORTION_ONE_THIRD = .33f
 
-class BuildsTab(val project: Project) : Disposable {
+class BuildsTab : Disposable {
     private val stateManager = RightViewStateManager(
         BuildDetailsRightView(),
         TestCaseDetailsRightView()
@@ -85,11 +50,11 @@ class BuildsTab(val project: Project) : Disposable {
     fun create(): JComponent {
         val splitter = OnePixelSplitter(SPLITTER_PROPORTION_ONE_THIRD)
 
-        splitter.firstComponent = JPanel(BorderLayout()).apply {
-            add(JBScrollPane(createBuildsTreePanel(), VERTICAL_SCROLLBAR_AS_NEEDED, HORIZONTAL_SCROLLBAR_AS_NEEDED))
+        splitter.firstComponent = BorderLayoutPanel().apply {
+            add(createBuildsTreePanel())
         }
 
-        splitter.secondComponent = JPanel(BorderLayout()).apply {
+        splitter.secondComponent = BorderLayoutPanel().apply {
             @Suppress("ForbiddenComment")
             // TODO: Properly add the right views here as scroll panes, no need for panel/row/cell
             add(
@@ -100,6 +65,12 @@ class BuildsTab(val project: Project) : Disposable {
                         }
                     }
                 }
+            )
+        }
+
+        GlobalScope.launch {
+            buildsTree.updateData(
+                ServiceManager.getService(TestAxisApiService::class.java).getBuilds()
             )
         }
 
