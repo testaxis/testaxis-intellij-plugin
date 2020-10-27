@@ -20,24 +20,33 @@ import javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED
 
 // Temporary fake data
 val fakeData = mutableListOf(
-    FakeBuild("Build PR #2", listOf(
-        FakeTestCase("It persists a user's username"),
-        FakeTestCase("It persists a user's password"),
-        FakeTestCase("It persists a user's address"),
-        FakeTestCase("It persists a user's email"),
-    )),
-    FakeBuild("Build PR #3", listOf(
-        FakeTestCase("It persists a user's username", passed = false),
-        FakeTestCase("It persists a user's password", passed = false),
-        FakeTestCase("It persists a user's address"),
-        FakeTestCase("It persists a user's email"),
-    )),
-    FakeBuild("Build PR #4", listOf(
-        FakeTestCase("It persists a user's username", passed = false),
-        FakeTestCase("It persists a user's password"),
-        FakeTestCase("It persists a user's address"),
-        FakeTestCase("It persists a user's email"),
-    )),
+    FakeBuild(
+        "Build PR #2",
+        listOf(
+            FakeTestCase("It persists a user's username"),
+            FakeTestCase("It persists a user's password"),
+            FakeTestCase("It persists a user's address"),
+            FakeTestCase("It persists a user's email"),
+        )
+    ),
+    FakeBuild(
+        "Build PR #3",
+        listOf(
+            FakeTestCase("It persists a user's username", passed = false),
+            FakeTestCase("It persists a user's password", passed = false),
+            FakeTestCase("It persists a user's address"),
+            FakeTestCase("It persists a user's email"),
+        )
+    ),
+    FakeBuild(
+        "Build PR #4",
+        listOf(
+            FakeTestCase("It persists a user's username", passed = false),
+            FakeTestCase("It persists a user's password"),
+            FakeTestCase("It persists a user's address"),
+            FakeTestCase("It persists a user's email"),
+        )
+    ),
     FakeBuild("Build PR #5", emptyList())
 )
 
@@ -83,20 +92,22 @@ class BuildsTab(val project: Project) : Disposable {
         splitter.secondComponent = JPanel(BorderLayout()).apply {
             @Suppress("ForbiddenComment")
             // TODO: Properly add the right views here as scroll panes, no need for panel/row/cell
-            add(panel {
-                row {
-                    cell(isVerticalFlow = true) {
-                        stateManager.getPanels().forEach { it() }
+            add(
+                panel {
+                    row {
+                        cell(isVerticalFlow = true) {
+                            stateManager.getPanels().forEach { it() }
+                        }
                     }
                 }
-            })
+            )
         }
 
         return splitter
     }
 
     private fun createBuildsTreePanel() =
-            ToolbarDecorator.createDecorator(buildsTree.render()).createPanel()
+        ToolbarDecorator.createDecorator(buildsTree.render()).createPanel()
 
     override fun dispose() {
         TODO("Not yet implemented")
