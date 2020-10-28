@@ -43,7 +43,7 @@ class BuildsTab : Disposable {
             stateManager.showAndGet<BuildDetailsRightView>().setBuild(it)
         }
         testCaseSelectedListeners.add {
-            stateManager.showAndGet<TestCaseDetailsRightView>().setBuild(it)
+            stateManager.showAndGet<TestCaseDetailsRightView>().setTestCaseExecution(it)
         }
     }
 
