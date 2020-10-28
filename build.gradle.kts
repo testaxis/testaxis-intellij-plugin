@@ -43,6 +43,7 @@ repositories {
 dependencies {
     implementation("io.github.rybalkinsd:kohttp:0.12.0")
     implementation("io.github.rybalkinsd:kohttp-jackson:0.12.0")
+    implementation("org.ocpsoft.prettytime:prettytime:4.0.4.Final")
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.14.1")
 }
 

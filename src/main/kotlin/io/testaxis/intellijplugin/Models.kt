@@ -20,7 +20,14 @@ data class Build(
     val serviceBuildUrl: String?,
     val createdAt: Date,
 ) {
-    fun label() = "[$branch] Build for PR #$pr / commit $commit"
+    fun label() = StringBuilder().apply {
+        append("[$branch] ")
+        if (pr?.isNotEmpty() == true) {
+            append("Build for PR #$pr / ")
+        }
+        append("Commit ${commit.subSequence(0, 8)}")
+        append(" | ${createdAt.diffForHumans()}")
+    }.toString()
 
     suspend fun retrieveTestCaseExecutions() =
         ServiceManager.getService(TestAxisApiService::class.java).getTestCaseExecutions(this)

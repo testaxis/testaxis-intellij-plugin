@@ -27,6 +27,8 @@ class BuildsTree : Disposable {
         selectionModel.selectionMode = TreeSelectionModel.SINGLE_TREE_SELECTION
         isEditable = false
 
+        cellRenderer = BuildsTreeNodeRenderer()
+
         rowHeight = 0
 
         addTreeSelectionListener {
