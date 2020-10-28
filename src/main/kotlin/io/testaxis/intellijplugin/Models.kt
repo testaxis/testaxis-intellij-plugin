@@ -8,8 +8,10 @@ import io.testaxis.intellijplugin.services.TestAxisApiService
 import java.util.Date
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy::class)
 data class Build(
     val id: Int,
+    val status: String,
     val branch: String,
     val commit: String,
     val pr: String?,
@@ -18,7 +20,14 @@ data class Build(
     val serviceBuildUrl: String?,
     val createdAt: Date,
 ) {
-    fun label() = "[$branch] Build for PR #$pr / commit $commit"
+    fun label() = StringBuilder().apply {
+        append("[$branch] ")
+        if (pr?.isNotEmpty() == true) {
+            append("Build for PR #$pr / ")
+        }
+        append("Commit ${commit.subSequence(0, 8)}")
+        append(" | ${createdAt.diffForHumans()}")
+    }.toString()
 
     suspend fun retrieveTestCaseExecutions() =
         ServiceManager.getService(TestAxisApiService::class.java).getTestCaseExecutions(this)
