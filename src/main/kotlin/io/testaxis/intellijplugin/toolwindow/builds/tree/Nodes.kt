@@ -9,7 +9,7 @@ import kotlinx.coroutines.runBlocking
 import javax.swing.Icon
 
 class RootNode(private val builds: List<Build>) : SimpleNode() {
-    override fun getChildren() = builds.map { BuildNode(it) }.toTypedArray()
+    override fun getChildren() = builds.sortedByDescending { it.id }.map { BuildNode(it) }.toTypedArray()
 
     override fun update(data: PresentationData) {
         super.update(data)
@@ -19,9 +19,12 @@ class RootNode(private val builds: List<Build>) : SimpleNode() {
 
 class BuildNode(val build: Build) : SimpleNode() {
     override fun getChildren() = listOf(
-        GenericChildrenNode("Tests") {
+        GenericChildrenNode("Test Results") {
             runBlocking {
-                build.retrieveTestCaseExecutions().map { TestCaseNode(it) }
+                build.retrieveTestCaseExecutions()
+                    .groupBy { it.testSuiteName }
+                    .map { entry -> TestGroupNode(entry.key, entry.value) }
+                    .sortedBy { it.testCases.all(TestCaseExecution::passed) }
             }
         }
     ).toTypedArray()
@@ -32,9 +35,27 @@ class BuildNode(val build: Build) : SimpleNode() {
         data.presentableText = build.label()
         data.tooltip = build.label()
 
-        @Suppress("ForbiddenComment")
-        // TODO: Visualize result: if (build.wasSuccessful()) AllIcons.General.InspectionsOK else AllIcons.General.Error
-        data.setIcon(AllIcons.General.InspectionsOK)
+        data.setIcon(icon())
+    }
+
+    private fun icon() = when (build.status) {
+        "success" -> AllIcons.General.InspectionsOK
+        "tests_failed" -> AllIcons.General.Error
+        "build_failed" -> AllIcons.General.Warning
+        else -> AllIcons.RunConfigurations.TestUnknown
+    }
+}
+
+class TestGroupNode(val groupName: String, val testCases: List<TestCaseExecution>) : SimpleNode() {
+    override fun getChildren() = testCases.sortedBy { it.passed }.map { TestCaseNode(it) }.toTypedArray()
+
+    override fun update(data: PresentationData) {
+        super.update(data)
+
+        data.presentableText = groupName
+        data.tooltip = groupName
+
+        data.setIcon(if (testCases.all { it.passed }) AllIcons.General.InspectionsOK else AllIcons.General.Error)
     }
 }
 

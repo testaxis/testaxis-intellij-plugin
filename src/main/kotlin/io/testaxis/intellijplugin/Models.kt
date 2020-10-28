@@ -8,8 +8,10 @@ import io.testaxis.intellijplugin.services.TestAxisApiService
 import java.util.Date
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy::class)
 data class Build(
     val id: Int,
+    val status: String,
     val branch: String,
     val commit: String,
     val pr: String?,
