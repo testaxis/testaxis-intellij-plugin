@@ -1,6 +1,6 @@
 package io.testaxis.intellijplugin
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.testaxis.intellijplugin.models.Build
 import org.glassfish.tyrus.client.ClientManager
 import org.springframework.messaging.converter.MappingJackson2MessageConverter
 import org.springframework.messaging.simp.stomp.StompCommand
@@ -31,7 +31,7 @@ class WebsocketClient(host: String, port: Int, endpoint: String = "/websocket") 
         }
 
         val stompClient = WebSocketStompClient(sockJsClient).apply {
-            messageConverter = MappingJackson2MessageConverter().apply { objectMapper = jacksonObjectMapper() }
+            messageConverter = MappingJackson2MessageConverter().apply { objectMapper = createObjectMapper() }
         }
 
         stompSession = stompClient.connect(WEBSOCKET_URL, SessionHandler(), host, port, endpoint).apply {

@@ -1,7 +1,7 @@
 package io.testaxis.intellijplugin.services
 
 import com.intellij.openapi.project.Project
-import io.testaxis.intellijplugin.Build
+import io.testaxis.intellijplugin.models.Build
 import io.testaxis.intellijplugin.WebsocketClient
 
 class TestAxisWebSocketService(project: Project) {

@@ -1,9 +1,10 @@
-package io.testaxis.intellijplugin
+package io.testaxis.intellijplugin.models
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.intellij.openapi.components.ServiceManager
+import io.testaxis.intellijplugin.diffForHumans
 import io.testaxis.intellijplugin.services.TestAxisApiService
 import java.util.Date
 
@@ -11,7 +12,7 @@ import java.util.Date
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy::class)
 data class Build(
     val id: Int,
-    val status: String,
+    val status: BuildStatus,
     val branch: String,
     val commit: String,
     val pr: String?,
