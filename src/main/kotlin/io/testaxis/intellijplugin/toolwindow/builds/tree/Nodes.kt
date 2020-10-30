@@ -49,7 +49,7 @@ class BuildNode(val build: Build) : SimpleNode(), SecondaryInformationHolder {
             data.addText("PR #${build.pr} / ", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
         }
 
-        data.addText("commit ${build.commit.subSequence(0, 8)}", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
+        data.addText("commit ${build.shortCommitHash()}", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
 
         data.setIcon(icon())
     }
