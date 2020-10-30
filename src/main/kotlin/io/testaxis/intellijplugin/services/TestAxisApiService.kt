@@ -7,7 +7,7 @@ import io.testaxis.intellijplugin.Build
 import io.testaxis.intellijplugin.TestCaseExecution
 import io.testaxis.intellijplugin.TestCaseExecutionDetails
 
-const val BASE_URL = "https://testaxis-io.herokuapp.com/api/v1"
+const val BASE_URL = "http://localhost:4000/api/v1"
 
 class TestAxisApiService {
     class TestAxisResourceCouldNotBeRetrievedException(message: String) : Exception(message)
