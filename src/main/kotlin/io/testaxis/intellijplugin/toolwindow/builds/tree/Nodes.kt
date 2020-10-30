@@ -5,9 +5,9 @@ import com.intellij.ide.projectView.PresentationData
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.treeStructure.SimpleNode
+import io.testaxis.intellijplugin.diffForHumans
 import io.testaxis.intellijplugin.models.Build
 import io.testaxis.intellijplugin.models.TestCaseExecution
-import io.testaxis.intellijplugin.diffForHumans
 import kotlinx.coroutines.runBlocking
 import javax.swing.Icon
 

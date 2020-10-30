@@ -3,10 +3,10 @@ package io.testaxis.intellijplugin.services
 import io.github.rybalkinsd.kohttp.dsl.async.httpGetAsync
 import io.github.rybalkinsd.kohttp.ext.url
 import io.github.rybalkinsd.kohttp.jackson.ext.toType
+import io.testaxis.intellijplugin.createObjectMapper
 import io.testaxis.intellijplugin.models.Build
 import io.testaxis.intellijplugin.models.TestCaseExecution
 import io.testaxis.intellijplugin.models.TestCaseExecutionDetails
-import io.testaxis.intellijplugin.createObjectMapper
 
 const val BASE_URL = "http://localhost:4000/api/v1"
 
