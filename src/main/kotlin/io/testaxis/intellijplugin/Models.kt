@@ -25,9 +25,11 @@ data class Build(
         if (pr?.isNotEmpty() == true) {
             append("Build for PR #$pr / ")
         }
-        append("Commit ${commit.subSequence(0, 8)}")
+        append("Commit ${shortCommitHash()}")
         append(" | ${createdAt.diffForHumans()}")
     }.toString()
+
+    fun shortCommitHash() = if (commit.length > 8) commit.subSequence(0, 8) else commit
 
     suspend fun retrieveTestCaseExecutions() =
         ServiceManager.getService(TestAxisApiService::class.java).getTestCaseExecutions(this)
