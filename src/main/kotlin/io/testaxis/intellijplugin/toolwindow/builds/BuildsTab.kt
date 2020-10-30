@@ -1,7 +1,7 @@
 package io.testaxis.intellijplugin.toolwindow.builds
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.components.ServiceManager
+import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.ui.OnePixelSplitter
 import com.intellij.ui.ToolbarDecorator
@@ -50,7 +50,7 @@ class BuildsTab(project: Project) : Disposable {
     }
 
     init {
-        project.getService(TestAxisWebSocketService::class.java).subscribeToBuilds {
+        project.service<TestAxisWebSocketService>().subscribeToBuilds {
             updateBuilds()
         }
     }
@@ -85,9 +85,7 @@ class BuildsTab(project: Project) : Disposable {
         ToolbarDecorator.createDecorator(buildsTree.render()).createPanel()
 
     private fun updateBuilds() = GlobalScope.launch {
-        buildsTree.updateData(
-            ServiceManager.getService(TestAxisApiService::class.java).getBuilds()
-        )
+        buildsTree.updateData(service<TestAxisApiService>().getBuilds())
     }
 
     override fun dispose() {

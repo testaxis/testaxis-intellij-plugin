@@ -3,7 +3,7 @@ package io.testaxis.intellijplugin.models
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
-import com.intellij.openapi.components.ServiceManager
+import com.intellij.openapi.components.service
 import io.testaxis.intellijplugin.diffForHumans
 import io.testaxis.intellijplugin.services.TestAxisApiService
 import java.util.Date
@@ -32,8 +32,7 @@ data class Build(
 
     fun shortCommitHash() = if (commit.length > 8) commit.subSequence(0, 8) else commit
 
-    suspend fun retrieveTestCaseExecutions() =
-        ServiceManager.getService(TestAxisApiService::class.java).getTestCaseExecutions(this)
+    suspend fun retrieveTestCaseExecutions() = service<TestAxisApiService>().getTestCaseExecutions(this)
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -47,8 +46,7 @@ data class TestCaseExecution(
     val passed: Boolean,
     val createdAt: Date
 ) {
-    suspend fun details() =
-        ServiceManager.getService(TestAxisApiService::class.java).getTestCaseExecutionDetails(this)
+    suspend fun details() = service<TestAxisApiService>().getTestCaseExecutionDetails(this)
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)
