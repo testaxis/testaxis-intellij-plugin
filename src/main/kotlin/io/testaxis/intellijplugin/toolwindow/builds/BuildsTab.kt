@@ -1,12 +1,14 @@
 package io.testaxis.intellijplugin.toolwindow.builds
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.components.ServiceManager
+import com.intellij.openapi.components.service
+import com.intellij.openapi.project.Project
 import com.intellij.ui.OnePixelSplitter
 import com.intellij.ui.ToolbarDecorator
 import com.intellij.ui.layout.panel
 import com.intellij.util.ui.components.BorderLayoutPanel
 import io.testaxis.intellijplugin.services.TestAxisApiService
+import io.testaxis.intellijplugin.services.TestAxisWebSocketService
 import io.testaxis.intellijplugin.toolwindow.builds.tree.BuildsTree
 import io.testaxis.intellijplugin.toolwindow.builds.views.BuildDetailsRightView
 import io.testaxis.intellijplugin.toolwindow.builds.views.RightView
@@ -32,7 +34,7 @@ private class RightViewStateManager(vararg val views: RightView) {
 
 const val SPLITTER_PROPORTION_ONE_THIRD = .33f
 
-class BuildsTab : Disposable {
+class BuildsTab(project: Project) : Disposable {
     private val stateManager = RightViewStateManager(
         BuildDetailsRightView(),
         TestCaseDetailsRightView()
@@ -44,6 +46,12 @@ class BuildsTab : Disposable {
         }
         testCaseSelectedListeners.add {
             stateManager.showAndGet<TestCaseDetailsRightView>().setTestCaseExecution(it)
+        }
+    }
+
+    init {
+        project.service<TestAxisWebSocketService>().subscribeToBuilds {
+            updateBuilds()
         }
     }
 
@@ -68,17 +76,17 @@ class BuildsTab : Disposable {
             )
         }
 
-        GlobalScope.launch {
-            buildsTree.updateData(
-                ServiceManager.getService(TestAxisApiService::class.java).getBuilds()
-            )
-        }
+        updateBuilds()
 
         return splitter
     }
 
     private fun createBuildsTreePanel() =
         ToolbarDecorator.createDecorator(buildsTree.render()).createPanel()
+
+    private fun updateBuilds() = GlobalScope.launch {
+        buildsTree.updateData(service<TestAxisApiService>().getBuilds())
+    }
 
     override fun dispose() {
         TODO("Not yet implemented")

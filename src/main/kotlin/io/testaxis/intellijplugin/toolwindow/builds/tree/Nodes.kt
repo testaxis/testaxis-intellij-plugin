@@ -5,9 +5,9 @@ import com.intellij.ide.projectView.PresentationData
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.treeStructure.SimpleNode
-import io.testaxis.intellijplugin.Build
-import io.testaxis.intellijplugin.TestCaseExecution
 import io.testaxis.intellijplugin.diffForHumans
+import io.testaxis.intellijplugin.models.Build
+import io.testaxis.intellijplugin.models.TestCaseExecution
 import kotlinx.coroutines.runBlocking
 import javax.swing.Icon
 
@@ -51,17 +51,10 @@ class BuildNode(val build: Build) : SimpleNode(), SecondaryInformationHolder {
 
         data.addText("commit ${build.shortCommitHash()}", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
 
-        data.setIcon(icon())
+        data.setIcon(build.status.icon)
     }
 
     override fun getSecondaryInformation() = build.createdAt.diffForHumans()
-
-    private fun icon() = when (build.status) {
-        "success" -> AllIcons.General.InspectionsOK
-        "tests_failed" -> AllIcons.General.Error
-        "build_failed" -> AllIcons.General.Warning
-        else -> AllIcons.RunConfigurations.TestUnknown
-    }
 }
 
 class TestGroupNode(

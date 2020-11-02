@@ -8,8 +8,8 @@ import com.intellij.ui.tree.StructureTreeModel
 import com.intellij.ui.treeStructure.SimpleTreeStructure
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.ui.tree.TreeUtil
-import io.testaxis.intellijplugin.Build
-import io.testaxis.intellijplugin.TestCaseExecution
+import io.testaxis.intellijplugin.models.Build
+import io.testaxis.intellijplugin.models.TestCaseExecution
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.TreeModel
 import javax.swing.tree.TreeSelectionModel

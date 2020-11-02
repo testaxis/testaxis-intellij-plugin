@@ -2,7 +2,7 @@ package io.testaxis.intellijplugin.toolwindow.builds.views
 
 import com.intellij.ui.components.Label
 import com.intellij.ui.layout.panel
-import io.testaxis.intellijplugin.TestCaseExecution
+import io.testaxis.intellijplugin.models.TestCaseExecution
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.swing.JTextArea

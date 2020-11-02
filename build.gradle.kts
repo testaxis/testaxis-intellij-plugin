@@ -44,6 +44,12 @@ dependencies {
     implementation("io.github.rybalkinsd:kohttp:0.12.0")
     implementation("io.github.rybalkinsd:kohttp-jackson:0.12.0")
     implementation("org.ocpsoft.prettytime:prettytime:4.0.4.Final")
+    implementation("org.springframework:spring-messaging:5.3.0")
+    implementation("org.springframework:spring-websocket:5.3.0")
+    implementation("javax.websocket:javax.websocket-api:1.1")
+    implementation("org.glassfish.tyrus.bundles:tyrus-standalone-client:1.17")
+    implementation("com.natpryce:konfig:1.6.10.0")
+
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.14.1")
 }
 
@@ -87,6 +93,10 @@ tasks {
 
     withType<Detekt> {
         jvmTarget = "1.8"
+    }
+
+    runIde {
+        autoReloadPlugins = true
     }
 
     patchPluginXml {
