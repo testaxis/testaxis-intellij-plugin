@@ -58,7 +58,7 @@ class BuildsTree : Disposable {
                 return@onValidThread
             }
 
-            (treeModel.root as DefaultMutableTreeNode).children().asIterator().forEach {
+            (treeModel.root as DefaultMutableTreeNode).children().toList().forEach {
                 val node = it as DefaultMutableTreeNode
 
                 val buildNode = node.userObject as BuildNode
