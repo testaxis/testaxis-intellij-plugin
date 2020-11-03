@@ -12,6 +12,8 @@
         <applicationService serviceImplementation="io.testaxis.intellijplugin.services.TestAxisApiService"/>
         <projectService serviceImplementation="io.testaxis.intellijplugin.services.MyProjectService"/>
         <projectService serviceImplementation="io.testaxis.intellijplugin.services.TestAxisWebSocketService"/>
+        <projectService serviceInterface="io.testaxis.intellijplugin.messages.MessageBusService"
+                        serviceImplementation="io.testaxis.intellijplugin.messages.DefaultMessageBusService" />
 
         <toolWindow id="TestAxis" anchor="bottom"
                     factoryClass="io.testaxis.intellijplugin.toolwindow.TestReportToolWindowFactory"/>
