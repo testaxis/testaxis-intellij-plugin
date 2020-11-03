@@ -12,6 +12,7 @@ import io.testaxis.intellijplugin.models.Build
 import io.testaxis.intellijplugin.models.TestCaseExecution
 import javax.swing.tree.DefaultMutableTreeNode
 import javax.swing.tree.TreeModel
+import javax.swing.tree.TreePath
 import javax.swing.tree.TreeSelectionModel
 
 class BuildsTree : Disposable {
@@ -49,6 +50,25 @@ class BuildsTree : Disposable {
         tree.invalidate()
 
         tree.model = createTreeModel(data)
+    }
+
+    fun selectAndExpand(build: Build) = (tree.model as AsyncTreeModel).let { treeModel ->
+        treeModel.onValidThread {
+            if (treeModel.root == null) {
+                return@onValidThread
+            }
+
+            (treeModel.root as DefaultMutableTreeNode).children().toList().forEach {
+                val node = it as DefaultMutableTreeNode
+
+                val buildNode = node.userObject as BuildNode
+
+                if (buildNode.build == build) {
+                    tree.selectionPath = TreePath(node.path)
+                    tree.expandPath(TreePath(node.path))
+                }
+            }
+        }
     }
 
     private fun createTreeModel(data: List<Build>): TreeModel {
