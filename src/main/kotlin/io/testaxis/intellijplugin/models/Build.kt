@@ -34,17 +34,3 @@ data class Build(
 
     suspend fun retrieveTestCaseExecutions() = service<TestAxisApiService>().getTestCaseExecutions(this)
 }
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy::class)
-data class TestCaseExecution(
-    val id: Int,
-    val testSuiteName: String,
-    val name: String,
-    val className: String,
-    val time: Double,
-    val passed: Boolean,
-    val createdAt: Date
-) {
-    suspend fun details() = service<TestAxisApiService>().getTestCaseExecutionDetails(this)
-}
