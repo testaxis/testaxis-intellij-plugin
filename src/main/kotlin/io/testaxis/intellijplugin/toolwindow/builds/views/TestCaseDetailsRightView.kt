@@ -1,13 +1,17 @@
 package io.testaxis.intellijplugin.toolwindow.builds.views
 
+import com.intellij.openapi.project.Project
 import com.intellij.ui.components.Label
 import com.intellij.ui.layout.panel
 import io.testaxis.intellijplugin.models.TestCaseExecution
+import io.testaxis.intellijplugin.models.TestCaseExecutionDetails
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.swing.JTextArea
 
-class TestCaseDetailsRightView : RightView {
+class TestCaseDetailsRightView(val project: Project) : RightView {
+    private lateinit var testCaseExecutionDetails: TestCaseExecutionDetails
+
     private val nameLabel = Label("")
     private val testSuiteNameLabel = Label("")
     private val classNameLabel = Label("")
@@ -21,6 +25,9 @@ class TestCaseDetailsRightView : RightView {
         row {
             label("Name:")
             nameLabel()
+            button("Open Test") {
+                testCaseExecutionDetails.getMethod(project)?.navigate(true)
+            }
         }
         row {
             label("Test Suite Name:")
@@ -66,6 +73,8 @@ class TestCaseDetailsRightView : RightView {
         nameLabel.text = "Loading..."
         GlobalScope.launch {
             with(testCaseExecution.details()) {
+                testCaseExecutionDetails = this
+
                 nameLabel.text = name
                 testSuiteNameLabel.text = testSuiteName
                 classNameLabel.text = className

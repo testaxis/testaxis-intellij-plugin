@@ -39,7 +39,7 @@ const val SPLITTER_PROPORTION_ONE_THIRD = .33f
 class BuildsTab(project: Project) : Disposable {
     private val stateManager = RightViewStateManager(
         BuildDetailsRightView(),
-        TestCaseDetailsRightView()
+        TestCaseDetailsRightView(project)
     )
 
     private val buildsTree = BuildsTree().apply {
