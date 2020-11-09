@@ -4,12 +4,11 @@ import org.junit.jupiter.api.Test
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 import java.util.Calendar
-import java.util.Date
 
 class DatesTest {
     @Test
     fun `it provides a helper that formats the date now`() {
-        val date = Date()
+        val date = aFewSecondsAgo()
 
         expectThat(date.diffForHumans()).isEqualTo("moments ago")
     }

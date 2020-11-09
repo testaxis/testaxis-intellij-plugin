@@ -9,6 +9,7 @@ import io.testaxis.intellijplugin.models.Build
 import io.testaxis.intellijplugin.models.BuildStatus
 import io.testaxis.intellijplugin.models.TestCaseExecution
 import io.testaxis.intellijplugin.models.TestCaseExecutionDetails
+import java.util.Calendar
 import java.util.Date
 
 fun createDescriptor(setUpProjectInstructor: Project.() -> Unit) = object : LightProjectDescriptor() {
@@ -41,7 +42,7 @@ fun fakeBuild(
     service: String? = null,
     serviceBuild: String? = null,
     serviceBuildUrl: String? = null,
-    createdAt: Date = Date()
+    createdAt: Date = aFewSecondsAgo()
 ) = Build(id, status, branch, commit, pr, service, serviceBuild, serviceBuildUrl, createdAt)
 
 fun fakeTestCaseExecution(
@@ -51,7 +52,7 @@ fun fakeTestCaseExecution(
     className: String = "com.example.service",
     time: Double = 0.35,
     passed: Boolean = true,
-    createdAt: Date = Date(),
+    createdAt: Date = aFewSecondsAgo(),
 ) = TestCaseExecution(id, testSuiteName, name, className, time, passed, createdAt)
 
 fun fakeTestCaseExecutionDetails(
@@ -59,3 +60,7 @@ fun fakeTestCaseExecutionDetails(
     failureType: String? = null,
     failureContent: String? = null,
 ) = TestCaseExecutionDetails(failureMessage, failureType, failureContent)
+
+fun aFewSecondsAgo(seconds: Int = 1): Date = Calendar.getInstance().apply {
+    set(Calendar.SECOND, get(Calendar.SECOND) - seconds)
+}.time
