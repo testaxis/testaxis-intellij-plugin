@@ -9,10 +9,8 @@
     <depends>com.intellij.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="io.testaxis.intellijplugin.services.MyApplicationService"/>
         <applicationService serviceInterface="io.testaxis.intellijplugin.services.ApiService"
                             serviceImplementation="io.testaxis.intellijplugin.services.TestAxisApiService"/>
-        <projectService serviceImplementation="io.testaxis.intellijplugin.services.MyProjectService"/>
         <projectService serviceInterface="io.testaxis.intellijplugin.services.WebSocketService"
                         serviceImplementation="io.testaxis.intellijplugin.services.TestAxisWebSocketService"/>
         <projectService serviceImplementation="io.testaxis.intellijplugin.services.PsiService"/>
