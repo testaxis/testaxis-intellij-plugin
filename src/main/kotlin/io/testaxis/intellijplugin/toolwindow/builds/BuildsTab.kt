@@ -7,8 +7,7 @@ import com.intellij.ui.OnePixelSplitter
 import com.intellij.ui.ToolbarDecorator
 import com.intellij.ui.layout.panel
 import com.intellij.util.ui.components.BorderLayoutPanel
-import io.testaxis.intellijplugin.messages.BuildNotifier
-import io.testaxis.intellijplugin.messages.MessageBusService
+import io.testaxis.intellijplugin.messages.MessageConfiguration
 import io.testaxis.intellijplugin.services.TestAxisApiService
 import io.testaxis.intellijplugin.services.WebSocketService
 import io.testaxis.intellijplugin.toolwindow.builds.tree.BuildsTree
@@ -56,9 +55,10 @@ class BuildsTab(project: Project) : Disposable {
             updateBuilds()
         }
 
-        project.service<MessageBusService>().run {
-            bus.connect().subscribe(buildShouldBeSelectedTopic, BuildNotifier { buildsTree.selectAndExpand(it) })
-        }
+        project.messageBus.connect().subscribe(
+            MessageConfiguration.BUILD_SHOULD_BE_SELECTED_TOPIC,
+            MessageConfiguration.BuildNotifier { buildsTree.selectAndExpand(it) }
+        )
     }
 
     fun create(): JComponent {
