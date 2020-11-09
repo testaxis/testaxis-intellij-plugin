@@ -6,7 +6,6 @@ import org.springframework.messaging.simp.stomp.StompCommand
 import org.springframework.messaging.simp.stomp.StompFrameHandler
 import org.springframework.messaging.simp.stomp.StompHeaders
 import org.springframework.messaging.simp.stomp.StompSession
-import org.springframework.messaging.simp.stomp.StompSession.Subscription
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter
 import org.springframework.web.socket.client.standard.StandardWebSocketClient
 import org.springframework.web.socket.messaging.WebSocketStompClient
@@ -36,7 +35,7 @@ class WebsocketClient(host: String, port: Int, endpoint: String) {
         }.get()
     }
 
-    inline fun <reified T> subscribe(topic: String, crossinline handler: (T) -> Unit): Subscription =
+    inline fun <reified T> subscribe(topic: String, crossinline handler: (T) -> Unit) {
         stompSession.subscribe(
             topic,
             object : StompFrameHandler {
@@ -44,6 +43,7 @@ class WebsocketClient(host: String, port: Int, endpoint: String) {
                 override fun handleFrame(stompHeaders: StompHeaders, payload: Any) = handler(payload as T)
             }
         )
+    }
 }
 
 private class SessionHandler : StompSessionHandlerAdapter() {

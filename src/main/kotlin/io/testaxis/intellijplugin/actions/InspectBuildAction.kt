@@ -13,14 +13,12 @@ const val TOOL_WINDOW_ID = "TestAxis"
 
 class InspectBuildAction(
     private val project: Project,
-    name: String,
-    private val build: Build
+    val name: String,
+    val build: Build
 ) : NotificationAction(name) {
 
     override fun actionPerformed(e: AnActionEvent, notification: Notification) {
-        ToolWindowManager.getInstance(project)
-            .getToolWindow(TOOL_WINDOW_ID)
-            ?.show()
+        project.service<ToolWindowManager>().getToolWindow(TOOL_WINDOW_ID)?.show()
 
         project.service<MessageBusService>().run {
             bus.syncPublisher(buildShouldBeSelectedTopic).notify(build)

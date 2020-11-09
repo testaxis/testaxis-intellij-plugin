@@ -10,7 +10,7 @@ import com.intellij.util.ui.components.BorderLayoutPanel
 import io.testaxis.intellijplugin.messages.BuildNotifier
 import io.testaxis.intellijplugin.messages.MessageBusService
 import io.testaxis.intellijplugin.services.TestAxisApiService
-import io.testaxis.intellijplugin.services.TestAxisWebSocketService
+import io.testaxis.intellijplugin.services.WebSocketService
 import io.testaxis.intellijplugin.toolwindow.builds.tree.BuildsTree
 import io.testaxis.intellijplugin.toolwindow.builds.views.BuildDetailsRightView
 import io.testaxis.intellijplugin.toolwindow.builds.views.RightView
@@ -52,7 +52,7 @@ class BuildsTab(project: Project) : Disposable {
     }
 
     init {
-        project.service<TestAxisWebSocketService>().subscribeToBuilds {
+        project.service<WebSocketService>().subscribeToBuilds {
             updateBuilds()
         }
 

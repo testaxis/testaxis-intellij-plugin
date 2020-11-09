@@ -15,6 +15,7 @@ interface MessageBusService {
 
 class DefaultMessageBusService : MessageBusService {
     override val bus = ApplicationManager.getApplication().messageBus
+    // TODO: Must be scoped to the project, really simple using `project.messageBus`
 
     override val buildShouldBeSelectedTopic = Topic.create(BUILD_SHOULD_BE_SELECTED_TOPIC, BuildNotifier::class.java)
 }
