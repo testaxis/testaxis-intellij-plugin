@@ -1,5 +1,6 @@
 package io.testaxis.intellijplugin
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.testFramework.registerServiceInstance
 import io.testaxis.intellijplugin.models.Build
@@ -15,7 +16,8 @@ data class Fakes(
 
 fun Project.registerFakes(fakes: Fakes) {
     registerServiceInstance(WebSocketService::class.java, fakes.webSocketService)
-    registerServiceInstance(ApiService::class.java, fakes.apiService)
+
+    ApplicationManager.getApplication().registerServiceInstance(ApiService::class.java, fakes.apiService)
 }
 
 class FakeWebSocketService : WebSocketService {
@@ -31,7 +33,7 @@ class FakeWebSocketService : WebSocketService {
     fun reportNewBuild(build: Build) = buildHandlers.forEach { it(build) }
 }
 
-class FakeApiService : ApiService {
+open class FakeApiService : ApiService {
     override suspend fun getBuilds(): List<Build> = listOf(fakeBuild(), fakeBuild(), fakeBuild())
 
     override suspend fun getTestCaseExecutions(build: Build): List<TestCaseExecution> =

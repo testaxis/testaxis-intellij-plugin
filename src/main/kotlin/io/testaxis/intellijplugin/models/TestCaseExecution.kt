@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiMethod
+import io.testaxis.intellijplugin.services.ApiService
 import io.testaxis.intellijplugin.services.PsiService
-import io.testaxis.intellijplugin.services.TestAxisApiService
 import java.util.Date
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -21,7 +21,7 @@ data class TestCaseExecution(
     val passed: Boolean,
     val createdAt: Date,
 ) {
-    suspend fun details() = service<TestAxisApiService>().getTestCaseExecutionDetails(this)
+    suspend fun details() = service<ApiService>().getTestCaseExecutionDetails(this)
 
     fun getMethod(project: Project): PsiMethod? =
         project.service<PsiService>().findMethodByFullyQualifiedName(className, name)

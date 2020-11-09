@@ -2,6 +2,7 @@ package io.testaxis.intellijplugin.models
 
 import io.testaxis.intellijplugin.IntelliJPlatformTest
 import io.testaxis.intellijplugin.fakeBuild
+import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import strikt.api.expectThat
 import strikt.assertions.hasSize
@@ -37,9 +38,11 @@ class BuildTest : IntelliJPlatformTest() {
     }
 
     @Test
-    suspend fun `it retrieves test case executions`() {
+    fun `it retrieves test case executions`() {
         val build = fakeBuild(commit = "042")
 
-        expectThat(build.retrieveTestCaseExecutions()) hasSize 3
+        runBlocking {
+            expectThat(build.retrieveTestCaseExecutions()) hasSize 3
+        }
     }
 }

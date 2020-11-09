@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.intellij.openapi.components.service
 import io.testaxis.intellijplugin.diffForHumans
-import io.testaxis.intellijplugin.services.TestAxisApiService
+import io.testaxis.intellijplugin.services.ApiService
 import java.util.Date
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -32,5 +32,5 @@ data class Build(
 
     fun shortCommitHash() = if (commit.length > 8) commit.subSequence(0, 8) else commit
 
-    suspend fun retrieveTestCaseExecutions() = service<TestAxisApiService>().getTestCaseExecutions(this)
+    suspend fun retrieveTestCaseExecutions() = service<ApiService>().getTestCaseExecutions(this)
 }
