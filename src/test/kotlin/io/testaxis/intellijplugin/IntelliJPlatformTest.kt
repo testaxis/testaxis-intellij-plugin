@@ -5,13 +5,15 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 
 abstract class IntelliJPlatformTest {
-    private lateinit var fixture: IdeaProjectTestFixture
+    lateinit var fixture: IdeaProjectTestFixture
 
     @BeforeEach
-    fun setUp() {
-        fixture = createFixture(createDescriptor { registerFakes(Fakes()) })
+    open fun setUp() {
+        fixture = createFixture(createDescriptor { registerFakes(getFakes()) })
     }
 
+    open fun getFakes() = Fakes()
+
     @AfterEach
-    fun tearDown() = fixture.tearDownInEdt()
+    open fun tearDown() = fixture.tearDownInEdt()
 }

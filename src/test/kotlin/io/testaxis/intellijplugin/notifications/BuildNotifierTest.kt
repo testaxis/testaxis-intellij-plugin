@@ -4,18 +4,13 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.testFramework.fixtures.IdeaProjectTestFixture
 import io.testaxis.intellijplugin.FakeWebSocketService
 import io.testaxis.intellijplugin.Fakes
+import io.testaxis.intellijplugin.IntelliJPlatformTest
 import io.testaxis.intellijplugin.actions.InspectBuildAction
-import io.testaxis.intellijplugin.createDescriptor
-import io.testaxis.intellijplugin.createFixture
 import io.testaxis.intellijplugin.fakeBuild
 import io.testaxis.intellijplugin.models.Build
 import io.testaxis.intellijplugin.models.BuildStatus
-import io.testaxis.intellijplugin.registerFakes
-import io.testaxis.intellijplugin.tearDownInEdt
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import strikt.api.Assertion
@@ -25,15 +20,16 @@ import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.isNotNull
 
-class BuildNotifierTest {
-    private lateinit var fixture: IdeaProjectTestFixture
+class BuildNotifierTest : IntelliJPlatformTest() {
     private val webSocketService = FakeWebSocketService()
 
     private var notification: Notification? = null
 
+    override fun getFakes() = Fakes(webSocketService = webSocketService)
+
     @BeforeEach
-    fun setUp() {
-        fixture = createFixture(createDescriptor { registerFakes(Fakes(webSocketService = webSocketService)) })
+    override fun setUp() {
+        super.setUp()
 
         notification = null
 
@@ -46,9 +42,6 @@ class BuildNotifierTest {
             }
         )
     }
-
-    @AfterEach
-    fun tearDown() = fixture.tearDownInEdt()
 
     private fun getIncomingNotificationOrFail(): Notification {
         expectThat(notification).isNotNull()
