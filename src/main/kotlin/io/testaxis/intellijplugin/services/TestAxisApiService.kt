@@ -10,14 +10,22 @@ import io.testaxis.intellijplugin.models.Build
 import io.testaxis.intellijplugin.models.TestCaseExecution
 import io.testaxis.intellijplugin.models.TestCaseExecutionDetails
 
-class TestAxisApiService {
+interface ApiService {
+    suspend fun getBuilds(): List<Build>
+
+    suspend fun getTestCaseExecutions(build: Build): List<TestCaseExecution>
+
+    suspend fun getTestCaseExecutionDetails(testCaseExecution: TestCaseExecution): TestCaseExecutionDetails
+}
+
+class TestAxisApiService : ApiService {
     class TestAxisResourceCouldNotBeRetrievedException(message: String) : Exception(message)
 
     private val objectMapper = createObjectMapper()
 
     private fun HttpContext.testAxisApiUrl(url: String) = url(config(config.testaxis.api.url) + url)
 
-    suspend fun getBuilds(): List<Build> {
+    override suspend fun getBuilds(): List<Build> {
         val response = httpGetAsync {
             testAxisApiUrl("/projects/1/builds")
         }
@@ -26,7 +34,7 @@ class TestAxisApiService {
             ?: throw TestAxisResourceCouldNotBeRetrievedException("Failed to retrieve builds.")
     }
 
-    suspend fun getTestCaseExecutions(build: Build): List<TestCaseExecution> {
+    override suspend fun getTestCaseExecutions(build: Build): List<TestCaseExecution> {
         val response = httpGetAsync {
             testAxisApiUrl("/projects/1/builds/${build.id}/testcaseexecutions")
         }
@@ -35,7 +43,7 @@ class TestAxisApiService {
             ?: throw TestAxisResourceCouldNotBeRetrievedException("Failed to retrieve test executions for build $build")
     }
 
-    suspend fun getTestCaseExecutionDetails(testCaseExecution: TestCaseExecution): TestCaseExecutionDetails {
+    override suspend fun getTestCaseExecutionDetails(testCaseExecution: TestCaseExecution): TestCaseExecutionDetails {
         val response = httpGetAsync {
             testAxisApiUrl("/projects/1/builds/0/testcaseexecutions/${testCaseExecution.id}")
         }

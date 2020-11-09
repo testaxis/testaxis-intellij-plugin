@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>io.testaxis.intellijplugin</id>
-    <name>testaxis-intellij-plugin</name>
+    <name>TestAxis</name>
     <vendor>testaxis</vendor>
 
     <!-- Product and plugin compatibility requirements -->
@@ -10,12 +10,11 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="io.testaxis.intellijplugin.services.MyApplicationService"/>
-        <applicationService serviceImplementation="io.testaxis.intellijplugin.services.TestAxisApiService"/>
+        <applicationService serviceInterface="io.testaxis.intellijplugin.services.ApiService"
+                            serviceImplementation="io.testaxis.intellijplugin.services.TestAxisApiService"/>
         <projectService serviceImplementation="io.testaxis.intellijplugin.services.MyProjectService"/>
         <projectService serviceInterface="io.testaxis.intellijplugin.services.WebSocketService"
                         serviceImplementation="io.testaxis.intellijplugin.services.TestAxisWebSocketService"/>
-        <projectService serviceInterface="io.testaxis.intellijplugin.messages.MessageBusService"
-                        serviceImplementation="io.testaxis.intellijplugin.messages.DefaultMessageBusService" />
         <projectService serviceImplementation="io.testaxis.intellijplugin.services.PsiService"/>
 
         <toolWindow id="TestAxis" anchor="bottom"

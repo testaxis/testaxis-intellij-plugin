@@ -22,11 +22,11 @@ data class Build(
     val createdAt: Date,
 ) {
     fun label() = StringBuilder().apply {
-        append("[$branch] ")
+        append("[$branch] Build for ")
         if (pr?.isNotEmpty() == true) {
-            append("Build for PR #$pr / ")
+            append("PR #$pr / ")
         }
-        append("Commit ${shortCommitHash()}")
+        append("commit ${shortCommitHash()}")
         append(" | ${createdAt.diffForHumans()}")
     }.toString()
 

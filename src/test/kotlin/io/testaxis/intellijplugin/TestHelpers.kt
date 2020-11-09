@@ -7,6 +7,8 @@ import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory
 import com.intellij.testFramework.runInEdtAndWait
 import io.testaxis.intellijplugin.models.Build
 import io.testaxis.intellijplugin.models.BuildStatus
+import io.testaxis.intellijplugin.models.TestCaseExecution
+import io.testaxis.intellijplugin.models.TestCaseExecutionDetails
 import java.util.Date
 
 fun createDescriptor(setUpProjectInstructor: Project.() -> Unit) = object : LightProjectDescriptor() {
@@ -41,3 +43,19 @@ fun fakeBuild(
     serviceBuildUrl: String? = null,
     createdAt: Date = Date()
 ) = Build(id, status, branch, commit, pr, service, serviceBuild, serviceBuildUrl, createdAt)
+
+fun fakeTestCaseExecution(
+    id: Int = 1,
+    testSuiteName: String = "com.example.service",
+    name: String = "it can shorten a commit hash to be human readable",
+    className: String = "com.example.service",
+    time: Double = 0.35,
+    passed: Boolean = true,
+    createdAt: Date = Date(),
+) = TestCaseExecution(id, testSuiteName, name, className, time, passed, createdAt)
+
+fun fakeTestCaseExecutionDetails(
+    failureMessage: String? = null,
+    failureType: String? = null,
+    failureContent: String? = null,
+) = TestCaseExecutionDetails(failureMessage, failureType, failureContent)
