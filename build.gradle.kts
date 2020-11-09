@@ -41,8 +41,8 @@ repositories {
     jcenter()
 }
 dependencies {
-    implementation("io.github.rybalkinsd:kohttp:0.12.0")
-    implementation("io.github.rybalkinsd:kohttp-jackson:0.12.0")
+    implementation("io.ktor:ktor-client-cio:1.4.1") { exclude("org.slf4j", "slf4j-api") }
+    implementation("io.ktor:ktor-client-jackson:1.4.1") { exclude("org.slf4j", "slf4j-api") }
     implementation("org.ocpsoft.prettytime:prettytime:4.0.4.Final")
     implementation("org.springframework:spring-messaging:5.3.0")
     implementation("org.springframework:spring-websocket:5.3.0")

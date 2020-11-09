@@ -1,9 +1,10 @@
 package io.testaxis.intellijplugin.services
 
-import io.github.rybalkinsd.kohttp.dsl.async.httpGetAsync
-import io.github.rybalkinsd.kohttp.dsl.context.HttpContext
-import io.github.rybalkinsd.kohttp.ext.url
-import io.github.rybalkinsd.kohttp.jackson.ext.toType
+import com.intellij.openapi.Disposable
+import io.ktor.client.HttpClient
+import io.ktor.client.features.json.JacksonSerializer
+import io.ktor.client.features.json.JsonFeature
+import io.ktor.client.request.get
 import io.testaxis.intellijplugin.config
 import io.testaxis.intellijplugin.createObjectMapper
 import io.testaxis.intellijplugin.models.Build
@@ -18,37 +19,24 @@ interface ApiService {
     suspend fun getTestCaseExecutionDetails(testCaseExecution: TestCaseExecution): TestCaseExecutionDetails
 }
 
-class TestAxisApiService : ApiService {
-    class TestAxisResourceCouldNotBeRetrievedException(message: String) : Exception(message)
-
-    private val objectMapper = createObjectMapper()
-
-    private fun HttpContext.testAxisApiUrl(url: String) = url(config(config.testaxis.api.url) + url)
-
-    override suspend fun getBuilds(): List<Build> {
-        val response = httpGetAsync {
-            testAxisApiUrl("/projects/1/builds")
+class TestAxisApiService : ApiService, Disposable {
+    val client = HttpClient {
+        install(JsonFeature) {
+            serializer = JacksonSerializer(createObjectMapper())
         }
-
-        return response.await().toType(objectMapper)
-            ?: throw TestAxisResourceCouldNotBeRetrievedException("Failed to retrieve builds.")
     }
 
-    override suspend fun getTestCaseExecutions(build: Build): List<TestCaseExecution> {
-        val response = httpGetAsync {
-            testAxisApiUrl("/projects/1/builds/${build.id}/testcaseexecutions")
-        }
+    private fun testAxisApiUrl(url: String) = config(config.testaxis.api.url) + url
 
-        return response.await().toType(objectMapper)
-            ?: throw TestAxisResourceCouldNotBeRetrievedException("Failed to retrieve test executions for build $build")
-    }
+    override suspend fun getBuilds(): List<Build> = client.get(testAxisApiUrl("/projects/1/builds"))
 
-    override suspend fun getTestCaseExecutionDetails(testCaseExecution: TestCaseExecution): TestCaseExecutionDetails {
-        val response = httpGetAsync {
-            testAxisApiUrl("/projects/1/builds/0/testcaseexecutions/${testCaseExecution.id}")
-        }
+    override suspend fun getTestCaseExecutions(build: Build): List<TestCaseExecution> =
+        client.get(testAxisApiUrl("/projects/1/builds/${build.id}/testcaseexecutions"))
 
-        return response.await().toType(objectMapper)
-            ?: throw TestAxisResourceCouldNotBeRetrievedException("Failed to retrieve details for $testCaseExecution")
+    override suspend fun getTestCaseExecutionDetails(testCaseExecution: TestCaseExecution): TestCaseExecutionDetails =
+        client.get(testAxisApiUrl("/projects/1/builds/0/testcaseexecutions/${testCaseExecution.id}"))
+
+    override fun dispose() {
+        client.close()
     }
 }
