@@ -56,6 +56,8 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
     testImplementation("io.strikt:strikt-core:0.28.0")
+    testImplementation("org.assertj:assertj-core:3.18.0")
+    testImplementation("org.assertj:assertj-swing-junit:3.17.1")
     testImplementation("io.ktor:ktor-client-mock:1.4.1")
 }
 
