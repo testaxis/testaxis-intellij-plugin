@@ -41,6 +41,7 @@ repositories {
     jcenter()
 }
 dependencies {
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.10")
     implementation("io.ktor:ktor-client-cio:1.4.1") { exclude("org.slf4j", "slf4j-api") }
     implementation("io.ktor:ktor-client-jackson:1.4.1") { exclude("org.slf4j", "slf4j-api") }
     implementation("org.ocpsoft.prettytime:prettytime:4.0.4.Final")
@@ -55,6 +56,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
     testImplementation("io.strikt:strikt-core:0.28.0")
+    testImplementation("io.ktor:ktor-client-mock:1.4.1")
 }
 
 // Configure gradle-intellij-plugin plugin.

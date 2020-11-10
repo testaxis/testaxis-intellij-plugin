@@ -1,7 +1,9 @@
 package io.testaxis.intellijplugin.services
 
 import com.intellij.openapi.Disposable
+import com.intellij.serviceContainer.NonInjectable
 import io.ktor.client.HttpClient
+import io.ktor.client.HttpClientConfig
 import io.ktor.client.features.json.JacksonSerializer
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.get
@@ -19,13 +21,7 @@ interface ApiService {
     suspend fun getTestCaseExecutionDetails(testCaseExecution: TestCaseExecution): TestCaseExecutionDetails
 }
 
-class TestAxisApiService : ApiService, Disposable {
-    val client = HttpClient {
-        install(JsonFeature) {
-            serializer = JacksonSerializer(createObjectMapper())
-        }
-    }
-
+class TestAxisApiService @NonInjectable constructor(val client: HttpClient = defaultClient()) : ApiService, Disposable {
     private fun testAxisApiUrl(url: String) = config(config.testaxis.api.url) + url
 
     override suspend fun getBuilds(): List<Build> = client.get(testAxisApiUrl("/projects/1/builds"))
@@ -38,5 +34,13 @@ class TestAxisApiService : ApiService, Disposable {
 
     override fun dispose() {
         client.close()
+    }
+}
+
+private fun defaultClient() = HttpClient { defaultConfiguration() }
+
+internal fun HttpClientConfig<*>.defaultConfiguration() {
+    install(JsonFeature) {
+        serializer = JacksonSerializer(createObjectMapper())
     }
 }
