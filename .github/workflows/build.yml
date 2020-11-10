@@ -64,7 +64,9 @@ jobs:
 
       # Run detekt, ktlint and tests
       - name: Run Linters and Test
-        run: ./gradlew check
+        uses: GabrielBB/xvfb-action@v1
+        with:
+          run: ./gradlew check
 
       # Run verifyPlugin Gradle task
       - name: Verify Plugin
