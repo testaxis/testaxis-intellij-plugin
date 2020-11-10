@@ -6,7 +6,6 @@ import org.assertj.swing.edt.FailOnThreadViolationRepaintManager
 import org.assertj.swing.edt.GuiActionRunner
 import org.assertj.swing.exception.ComponentLookupException
 import org.assertj.swing.fixture.FrameFixture
-import org.jetbrains.kotlin.tools.projectWizard.wizard.ui.textField
 import org.junit.jupiter.api.BeforeAll
 import javax.swing.JLabel
 import javax.swing.text.JTextComponent
