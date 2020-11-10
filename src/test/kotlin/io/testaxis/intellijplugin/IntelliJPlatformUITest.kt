@@ -6,6 +6,7 @@ import org.assertj.swing.edt.FailOnThreadViolationRepaintManager
 import org.assertj.swing.edt.GuiActionRunner
 import org.assertj.swing.exception.ComponentLookupException
 import org.assertj.swing.fixture.FrameFixture
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import javax.swing.JLabel
 import javax.swing.text.JTextComponent
@@ -17,6 +18,20 @@ abstract class IntelliJPlatformUITest : IntelliJPlatformTest() {
         fun setUpOnce() {
             FailOnThreadViolationRepaintManager.install()
         }
+    }
+
+    protected lateinit var frame: FrameFixture
+
+    @AfterEach
+    override fun tearDown() {
+        if (this::frame.isInitialized) {
+            frame.cleanUp()
+        }
+
+        // Add a sleep to allow the swing timers to be disposed
+        Thread.sleep(2500)
+
+        super.tearDown()
     }
 
     protected fun <T> executeGuiAction(query: () -> T): T {
@@ -48,9 +63,10 @@ abstract class IntelliJPlatformUITest : IntelliJPlatformTest() {
     }
 
     protected fun FrameFixture.requireContainsTextBox(requiredText: String) {
-        val textMatcher: GenericTypeMatcher<JTextComponent> = object : GenericTypeMatcher<JTextComponent>(JTextComponent::class.java) {
-            override fun isMatching(label: JTextComponent) = requiredText == label.text
-        }
+        val textMatcher: GenericTypeMatcher<JTextComponent> =
+            object : GenericTypeMatcher<JTextComponent>(JTextComponent::class.java) {
+                override fun isMatching(label: JTextComponent) = requiredText == label.text
+            }
 
         try {
             textBox(textMatcher).requireVisible()

@@ -25,7 +25,7 @@ class TestCaseDetailsRightViewTest : IntelliJPlatformUITest() {
     @Test
     fun `it shows test case execution details`() {
         val testCaseDetailsRightView = executeGuiAction { TestCaseDetailsRightView(fixture.project) }
-        val frame = Containers.showInFrame(testCaseDetailsRightView.getPanel())
+        frame = Containers.showInFrame(testCaseDetailsRightView.getPanel())
 
         executeGuiAction {
             testCaseDetailsRightView.setTestCaseExecution(fakeTestCaseExecution())

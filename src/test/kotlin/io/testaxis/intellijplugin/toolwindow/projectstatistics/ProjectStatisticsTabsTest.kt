@@ -9,7 +9,7 @@ class ProjectStatisticsTabsTest : IntelliJPlatformUITest() {
     @Test
     fun `it shows the projects statistics label`() {
         val component = GuiActionRunner.execute<ProjectStatisticsTab> { ProjectStatisticsTab() }
-        val frame = showInFrame(component.content())
+        frame = showInFrame(component.content())
 
         frame.requireContainsLabel("Project Statistics")
     }
