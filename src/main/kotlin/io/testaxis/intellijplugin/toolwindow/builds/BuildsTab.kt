@@ -7,10 +7,9 @@ import com.intellij.ui.OnePixelSplitter
 import com.intellij.ui.ToolbarDecorator
 import com.intellij.ui.layout.panel
 import com.intellij.util.ui.components.BorderLayoutPanel
-import io.testaxis.intellijplugin.messages.BuildNotifier
-import io.testaxis.intellijplugin.messages.MessageBusService
-import io.testaxis.intellijplugin.services.TestAxisApiService
-import io.testaxis.intellijplugin.services.TestAxisWebSocketService
+import io.testaxis.intellijplugin.messages.MessageConfiguration
+import io.testaxis.intellijplugin.services.ApiService
+import io.testaxis.intellijplugin.services.WebSocketService
 import io.testaxis.intellijplugin.toolwindow.builds.tree.BuildsTree
 import io.testaxis.intellijplugin.toolwindow.builds.views.BuildDetailsRightView
 import io.testaxis.intellijplugin.toolwindow.builds.views.RightView
@@ -52,13 +51,14 @@ class BuildsTab(project: Project) : Disposable {
     }
 
     init {
-        project.service<TestAxisWebSocketService>().subscribeToBuilds {
+        project.service<WebSocketService>().subscribeToBuilds {
             updateBuilds()
         }
 
-        project.service<MessageBusService>().run {
-            bus.connect().subscribe(buildShouldBeSelectedTopic, BuildNotifier { buildsTree.selectAndExpand(it) })
-        }
+        project.messageBus.connect().subscribe(
+            MessageConfiguration.BUILD_SHOULD_BE_SELECTED_TOPIC,
+            MessageConfiguration.BuildNotifier { buildsTree.selectAndExpand(it) }
+        )
     }
 
     fun create(): JComponent {
@@ -91,7 +91,7 @@ class BuildsTab(project: Project) : Disposable {
         ToolbarDecorator.createDecorator(buildsTree.render()).createPanel()
 
     private fun updateBuilds() = GlobalScope.launch {
-        buildsTree.updateData(service<TestAxisApiService>().getBuilds())
+        buildsTree.updateData(service<ApiService>().getBuilds())
     }
 
     override fun dispose() {

@@ -1,0 +1,62 @@
+[
+  {
+    "id": 426,
+    "build_id": 43,
+    "test_suite_name": "io.testaxis.backend.http.controllers.ReportsControllerTest",
+    "name": "A user can upload multiple XML test reports()",
+    "class_name": "io.testaxis.backend.http.controllers.ReportsControllerTest",
+    "time": 0.041,
+    "passed": true,
+    "created_at": "2020-10-28T11:19:40.266+00:00"
+  },
+  {
+    "id": 428,
+    "build_id": 43,
+    "test_suite_name": "io.testaxis.backend.actions.ParseJUnitXMLTest",
+    "name": "It parses a single XML test report with a _testsuites_ root element()",
+    "class_name": "io.testaxis.backend.actions.ParseJUnitXMLTest",
+    "time": 0.001,
+    "passed": true,
+    "created_at": "2020-10-28T11:19:40.266+00:00"
+  },
+  {
+    "id": 429,
+    "build_id": 43,
+    "test_suite_name": "io.testaxis.backend.actions.ParseJUnitXMLTest",
+    "name": "It parses multiple XML test report with a _testsuite_ root element()",
+    "class_name": "io.testaxis.backend.actions.ParseJUnitXMLTest",
+    "time": 0.026,
+    "passed": false,
+    "created_at": "2020-10-28T11:19:40.266+00:00"
+  },
+  {
+    "id": 436,
+    "build_id": 43,
+    "test_suite_name": "io.testaxis.backend.http.controllers.api.TestCaseExecutionsControllerTest",
+    "name": "A user can retrieve a failing single test case execution with more details()",
+    "class_name": "io.testaxis.backend.http.controllers.api.TestCaseExecutionsControllerTest",
+    "time": 0.164,
+    "passed": true,
+    "created_at": "2020-10-28T11:19:40.266+00:00"
+  },
+  {
+    "id": 437,
+    "build_id": 43,
+    "test_suite_name": "io.testaxis.backend.http.controllers.api.TestCaseExecutionsControllerTest",
+    "name": "A user can retrieve all test case executions for a given build()",
+    "class_name": "io.testaxis.backend.http.controllers.api.TestCaseExecutionsControllerTest",
+    "time": 0.052,
+    "passed": true,
+    "created_at": "2020-10-28T11:19:40.266+00:00"
+  },
+  {
+    "id": 438,
+    "build_id": 43,
+    "test_suite_name": "io.testaxis.backend.http.controllers.api.TestCaseExecutionsControllerTest",
+    "name": "A user can retrieve a successful single test case execution with more details()",
+    "class_name": "io.testaxis.backend.http.controllers.api.TestCaseExecutionsControllerTest",
+    "time": 0.062,
+    "passed": false,
+    "created_at": "2020-10-28T11:19:40.266+00:00"
+  }
+]

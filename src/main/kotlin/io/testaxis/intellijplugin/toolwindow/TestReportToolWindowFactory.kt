@@ -16,7 +16,7 @@ class TestReportToolWindowFactory : ToolWindowFactory {
         )
 
         toolWindow.contentManager.addContent(
-            contentFactory.createContent(ProjectStatisticsTab(toolWindow).content(), "Project Statistics", false)
+            contentFactory.createContent(ProjectStatisticsTab().content(), "Project Statistics", false)
         )
     }
 }

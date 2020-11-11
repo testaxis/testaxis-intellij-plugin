@@ -1,5 +1,8 @@
 package io.testaxis.intellijplugin.toolwindow.builds.views
 
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.Label
 import com.intellij.ui.layout.panel
@@ -9,7 +12,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.swing.JTextArea
 
-class TestCaseDetailsRightView(val project: Project) : RightView {
+class TestCaseDetailsRightView(val project: Project) : RightView, Disposable {
     private lateinit var testCaseExecution: TestCaseExecution
 
     private val nameLabel = Label("")
@@ -88,12 +91,18 @@ class TestCaseDetailsRightView(val project: Project) : RightView {
 
         GlobalScope.launch {
             with(testCaseExecution.details()) {
-                failureMessageTextArea.text = failureMessage
-                failureTypeLabel.text = failureType
-                failureContentTextArea.text = failureContent
+                ApplicationManager.getApplication().invokeLater {
+                    failureMessageTextArea.text = failureMessage
+                    failureTypeLabel.text = failureType
+                    failureContentTextArea.text = failureContent
+                }
             }
         }
 
         testCaseCodeEditor.showTestMethod(testCaseExecution.getMethod(project))
+    }
+
+    override fun dispose() {
+        testCaseCodeEditor.editor?.let { EditorFactory.getInstance().releaseEditor(it) }
     }
 }

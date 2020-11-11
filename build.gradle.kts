@@ -9,7 +9,7 @@ plugins {
     // Kotlin support
     id("org.jetbrains.kotlin.jvm") version "1.4.10"
     // gradle-intellij-plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
-    id("org.jetbrains.intellij") version "0.5.0"
+    id("org.jetbrains.intellij") version "0.6.3"
     // gradle-changelog-plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
     id("org.jetbrains.changelog") version "0.6.2"
     // detekt linter - read more: https://detekt.github.io/detekt/gradle.html
@@ -41,8 +41,9 @@ repositories {
     jcenter()
 }
 dependencies {
-    implementation("io.github.rybalkinsd:kohttp:0.12.0")
-    implementation("io.github.rybalkinsd:kohttp-jackson:0.12.0")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.10")
+    implementation("io.ktor:ktor-client-cio:1.4.1") { exclude("org.slf4j", "slf4j-api") }
+    implementation("io.ktor:ktor-client-jackson:1.4.1") { exclude("org.slf4j", "slf4j-api") }
     implementation("org.ocpsoft.prettytime:prettytime:4.0.4.Final")
     implementation("org.springframework:spring-messaging:5.3.0")
     implementation("org.springframework:spring-websocket:5.3.0")
@@ -51,6 +52,13 @@ dependencies {
     implementation("com.natpryce:konfig:1.6.10.0")
 
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.14.1")
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
+    testImplementation("io.strikt:strikt-core:0.28.0")
+    testImplementation("org.assertj:assertj-core:3.18.0")
+    testImplementation("org.assertj:assertj-swing-junit:3.17.1")
+    testImplementation("io.ktor:ktor-client-mock:1.4.1")
 }
 
 // Configure gradle-intellij-plugin plugin.
@@ -80,19 +88,18 @@ detekt {
 }
 
 tasks {
-    // Set the compatibility versions to 1.8
     withType<JavaCompile> {
-        sourceCompatibility = "1.8"
-        targetCompatibility = "1.8"
+        sourceCompatibility = "11"
+        targetCompatibility = "11"
     }
     listOf("compileKotlin", "compileTestKotlin").forEach {
         getByName<KotlinCompile>(it) {
-            kotlinOptions.jvmTarget = "1.8"
+            kotlinOptions.jvmTarget = "11"
         }
     }
 
     withType<Detekt> {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
 
     runIde {
@@ -134,5 +141,9 @@ tasks {
         // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:
         // https://jetbrains.org/intellij/sdk/docs/tutorials/build_system/deployment.html#specifying-a-release-channel
         channels(pluginVersion.split('-').getOrElse(1) { "default" }.split('.').first())
+    }
+
+    test {
+        useJUnitPlatform()
     }
 }
