@@ -6,6 +6,7 @@
     <!-- Product and plugin compatibility requirements -->
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.java</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="io.testaxis.intellijplugin.services.MyApplicationService"/>
@@ -14,6 +15,7 @@
         <projectService serviceImplementation="io.testaxis.intellijplugin.services.TestAxisWebSocketService"/>
         <projectService serviceInterface="io.testaxis.intellijplugin.messages.MessageBusService"
                         serviceImplementation="io.testaxis.intellijplugin.messages.DefaultMessageBusService" />
+        <projectService serviceImplementation="io.testaxis.intellijplugin.services.PsiService"/>
 
         <toolWindow id="TestAxis" anchor="bottom"
                     factoryClass="io.testaxis.intellijplugin.toolwindow.TestReportToolWindowFactory"/>

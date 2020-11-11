@@ -1,13 +1,17 @@
 package io.testaxis.intellijplugin.toolwindow.builds.views
 
+import com.intellij.openapi.project.Project
 import com.intellij.ui.components.Label
 import com.intellij.ui.layout.panel
 import io.testaxis.intellijplugin.models.TestCaseExecution
+import io.testaxis.intellijplugin.toolwindow.builds.views.builds.TestCaseEditorField
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.swing.JTextArea
 
-class TestCaseDetailsRightView : RightView {
+class TestCaseDetailsRightView(val project: Project) : RightView {
+    private lateinit var testCaseExecution: TestCaseExecution
+
     private val nameLabel = Label("")
     private val testSuiteNameLabel = Label("")
     private val classNameLabel = Label("")
@@ -17,10 +21,15 @@ class TestCaseDetailsRightView : RightView {
     private val failureTypeLabel = Label("")
     private val failureContentTextArea = JTextArea(8, 10)
 
+    private val testCaseCodeEditor = TestCaseEditorField(project)
+
     private val panel = panel {
         row {
             label("Name:")
             nameLabel()
+            button("Open Test") {
+                testCaseExecution.getMethod(project)?.navigate(true)
+            }
         }
         row {
             label("Test Suite Name:")
@@ -50,6 +59,10 @@ class TestCaseDetailsRightView : RightView {
             label("Failure content:")
             failureContentTextArea()
         }
+        row {
+            label("Test code:")
+            testCaseCodeEditor()
+        }
     }
 
     override fun getPanel() = panel
@@ -63,18 +76,24 @@ class TestCaseDetailsRightView : RightView {
     }
 
     fun setTestCaseExecution(testCaseExecution: TestCaseExecution) {
-        nameLabel.text = "Loading..."
+        this.testCaseExecution = testCaseExecution
+
+        with(testCaseExecution) {
+            nameLabel.text = name
+            testSuiteNameLabel.text = testSuiteName
+            classNameLabel.text = className
+            timeLabel.text = time.toString()
+            createdAtLabel.text = createdAt.toString()
+        }
+
         GlobalScope.launch {
             with(testCaseExecution.details()) {
-                nameLabel.text = name
-                testSuiteNameLabel.text = testSuiteName
-                classNameLabel.text = className
-                timeLabel.text = time.toString()
-                createdAtLabel.text = createdAt.toString()
                 failureMessageTextArea.text = failureMessage
                 failureTypeLabel.text = failureType
                 failureContentTextArea.text = failureContent
             }
         }
+
+        testCaseCodeEditor.showTestMethod(testCaseExecution.getMethod(project))
     }
 }
