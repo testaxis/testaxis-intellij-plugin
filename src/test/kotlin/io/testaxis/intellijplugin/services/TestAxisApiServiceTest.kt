@@ -80,7 +80,10 @@ class TestAxisApiServiceTest {
         expectThat(testCaseExecutionDetails) isEqualTo TestCaseExecutionDetails(
             failureMessage = "io.testaxis.backend.exceptions.ResourceNotFoundException",
             failureType = "io.testaxis.backend.exceptions.ResourceNotFoundException",
-            failureContent = "io.testaxis.backend.exceptions.ResourceNo[[[OMITTED]]]Thread.java:834)\n"
+            failureContent = "io.testaxis.backend.exceptions.ResourceNo[[[OMITTED]]]Thread.java:834)\n",
+            coveredLines = mapOf(
+                "io.testaxis.backend.http.controllers.api.TestCaseExecutionsController" to listOf(1, 2, 3)
+            )
         )
     }
 

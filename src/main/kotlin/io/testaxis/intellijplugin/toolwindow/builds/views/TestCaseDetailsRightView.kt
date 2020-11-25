@@ -16,7 +16,7 @@ import javax.swing.SwingConstants
 class TestCaseDetailsRightView(val project: Project) : RightView, Disposable {
     private val tabbedPane = JBTabsPaneImpl(project, SwingConstants.TOP, this)
 
-    private val tabs = listOf(DetailsTab(project), TestCodeTab(project), CodeUnderTestTab())
+    private val tabs = listOf(DetailsTab(project), TestCodeTab(project), CodeUnderTestTab(project))
 
     init {
         tabs.forEach {
@@ -39,6 +39,7 @@ class TestCaseDetailsRightView(val project: Project) : RightView, Disposable {
     }
 
     override fun show() {
+        tabbedPane.selectedIndex = 0
         tabbedPane.component.isVisible = true
     }
 

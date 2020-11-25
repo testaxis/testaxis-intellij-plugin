@@ -40,4 +40,5 @@ data class TestCaseExecutionDetails(
     val failureMessage: String?,
     val failureType: String?,
     val failureContent: String?,
+    val coveredLines: Map<String, List<Int>>,
 )
