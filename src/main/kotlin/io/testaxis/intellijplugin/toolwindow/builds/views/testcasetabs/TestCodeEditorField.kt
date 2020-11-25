@@ -1,4 +1,4 @@
-package io.testaxis.intellijplugin.toolwindow.builds.views.builds
+package io.testaxis.intellijplugin.toolwindow.builds.views.testcasetabs
 
 import com.intellij.ide.highlighter.HighlighterFactory
 import com.intellij.openapi.editor.EditorFactory
@@ -9,7 +9,7 @@ import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiMethod
 import com.intellij.ui.LanguageTextField
 
-class TestCaseEditorField(project: Project) : LanguageTextField(null, project, "PLACEHOLDER") {
+class TestCodeEditorField(project: Project) : LanguageTextField(null, project, "PLACEHOLDER") {
     init {
         isOneLineMode = false
         autoscrolls = true

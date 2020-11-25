@@ -21,7 +21,14 @@ data class TestCaseExecution(
     val passed: Boolean,
     val createdAt: Date,
 ) {
-    suspend fun details() = service<ApiService>().getTestCaseExecutionDetails(this)
+    private lateinit var cachedDetails: TestCaseExecutionDetails
+
+    suspend fun details(): TestCaseExecutionDetails {
+        if (!this::cachedDetails.isInitialized) {
+            cachedDetails = service<ApiService>().getTestCaseExecutionDetails(this)
+        }
+        return cachedDetails
+    }
 
     fun getMethod(project: Project): PsiMethod? =
         project.service<PsiService>().findMethodByFullyQualifiedName(className, name)
