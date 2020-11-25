@@ -5,7 +5,6 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.ui.OnePixelSplitter
 import com.intellij.ui.ToolbarDecorator
-import com.intellij.ui.layout.panel
 import com.intellij.util.ui.components.BorderLayoutPanel
 import io.testaxis.intellijplugin.messages.MessageConfiguration
 import io.testaxis.intellijplugin.services.ApiService
@@ -14,8 +13,10 @@ import io.testaxis.intellijplugin.toolwindow.builds.tree.BuildsTree
 import io.testaxis.intellijplugin.toolwindow.builds.views.BuildDetailsRightView
 import io.testaxis.intellijplugin.toolwindow.builds.views.RightView
 import io.testaxis.intellijplugin.toolwindow.builds.views.TestCaseDetailsRightView
+import io.testaxis.intellijplugin.toolwindow.builds.views.WelcomeRightView
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.awt.CardLayout
 import javax.swing.JComponent
 
 private class RightViewStateManager(vararg val views: RightView) {
@@ -37,6 +38,7 @@ const val SPLITTER_PROPORTION_ONE_THIRD = .33f
 
 class BuildsTab(project: Project) : Disposable {
     private val stateManager = RightViewStateManager(
+        WelcomeRightView(),
         BuildDetailsRightView(),
         TestCaseDetailsRightView(project)
     )
@@ -69,17 +71,10 @@ class BuildsTab(project: Project) : Disposable {
         }
 
         splitter.secondComponent = BorderLayoutPanel().apply {
-            @Suppress("ForbiddenComment")
-            // TODO: Properly add the right views here as scroll panes, no need for panel/row/cell
-            add(
-                panel {
-                    row {
-                        cell(isVerticalFlow = true) {
-                            stateManager.getPanels().forEach { it() }
-                        }
-                    }
-                }
-            )
+            layout = CardLayout()
+            stateManager.getPanels().forEach {
+                add(it)
+            }
         }
 
         updateBuilds()

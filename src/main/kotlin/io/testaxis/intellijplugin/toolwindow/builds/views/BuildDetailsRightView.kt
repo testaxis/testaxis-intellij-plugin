@@ -8,10 +8,8 @@ class BuildDetailsRightView : RightView {
     private val buildLabel = Label("the name of the build")
 
     private val panel = panel {
-        row {
+        row("Build") {
             buildLabel()
-            label("test1")
-            label("test1")
         }
     }
 

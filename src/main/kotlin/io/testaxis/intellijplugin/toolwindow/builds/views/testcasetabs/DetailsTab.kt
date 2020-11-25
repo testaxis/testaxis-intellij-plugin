@@ -9,6 +9,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.swing.JComponent
 import javax.swing.JTextArea
+import javax.swing.border.EmptyBorder
 
 class DetailsTab(val project: Project) : TestCaseTab {
     override val tabName = "Execution Details"
@@ -62,7 +63,9 @@ class DetailsTab(val project: Project) : TestCaseTab {
         }
     }
 
-    override fun getComponent(): JComponent = panel
+    override fun getComponent(): JComponent = panel.apply {
+        border = EmptyBorder(10, 10, 10, 10)
+    }
 
     override fun setTestCaseExecution(testCaseExecution: TestCaseExecution) {
         this.testCaseExecution = testCaseExecution
