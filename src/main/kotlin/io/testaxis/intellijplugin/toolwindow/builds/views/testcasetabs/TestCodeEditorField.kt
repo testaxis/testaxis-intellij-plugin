@@ -2,13 +2,16 @@ package io.testaxis.intellijplugin.toolwindow.builds.views.testcasetabs
 
 import com.intellij.ide.highlighter.HighlighterFactory
 import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.colors.ColorKey
 import com.intellij.openapi.editor.colors.EditorColors
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.markup.EffectType
+import com.intellij.openapi.editor.markup.HighlighterTargetArea
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiMethod
 import com.intellij.ui.LanguageTextField
@@ -43,6 +46,9 @@ class TestCodeEditorField(project: Project) : LanguageTextField(null, project, "
             file.fileType,
             PsiDocumentManager.getInstance(project).getDocument(file)
         )
+
+        setCaretPosition(0)
+        scrollToCaretPosition()
     }
 
     fun showTestMethod(method: PsiMethod?) {
@@ -64,13 +70,23 @@ class TestCodeEditorField(project: Project) : LanguageTextField(null, project, "
         document = EditorFactory.getInstance().createDocument(text)
     }
 
-    fun highlightLine(lineNumber: Int) {
-        val attributes = TextAttributes().apply {
-            backgroundColor = editor?.colorsScheme?.getColor(EditorColors.MODIFIED_LINES_COLOR)
-            effectType = EffectType.ROUNDED_BOX
-        }
+    fun highlightLine(lineNumber: Int) = editor?.markupModel?.addLineHighlighter(
+        lineNumber - 1,
+        LINE_HIGHLIGHT_LAYER,
+        createHighlightAttributes(EditorColors.ADDED_LINES_COLOR)
+    )
 
-        editor?.markupModel?.addLineHighlighter(lineNumber - 1, LINE_HIGHLIGHT_LAYER, attributes)
+    fun highlightElement(element: PsiElement) = editor?.markupModel?.addRangeHighlighter(
+        element.textRange.startOffset,
+        element.textRange.endOffset,
+        LINE_HIGHLIGHT_LAYER,
+        createHighlightAttributes(EditorColors.MODIFIED_LINES_COLOR),
+        HighlighterTargetArea.LINES_IN_RANGE
+    )
+
+    private fun createHighlightAttributes(colorKey: ColorKey) = TextAttributes().apply {
+        backgroundColor = editor?.colorsScheme?.getColor(colorKey)
+        effectType = EffectType.ROUNDED_BOX
     }
 
     private fun scrollToCaretPosition() =
