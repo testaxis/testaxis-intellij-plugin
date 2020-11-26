@@ -1,108 +1,59 @@
 package io.testaxis.intellijplugin.toolwindow.builds.views
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.project.Project
-import com.intellij.ui.components.Label
-import com.intellij.ui.layout.panel
+import com.intellij.ui.JBTabsPaneImpl
+import com.intellij.ui.tabs.TabInfo
+import com.intellij.ui.tabs.TabsListener
 import io.testaxis.intellijplugin.models.TestCaseExecution
-import io.testaxis.intellijplugin.toolwindow.builds.views.builds.TestCaseEditorField
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import javax.swing.JTextArea
+import io.testaxis.intellijplugin.toolwindow.builds.views.testcasetabs.CodeUnderTestTab
+import io.testaxis.intellijplugin.toolwindow.builds.views.testcasetabs.DetailsTab
+import io.testaxis.intellijplugin.toolwindow.builds.views.testcasetabs.TestCaseTab
+import io.testaxis.intellijplugin.toolwindow.builds.views.testcasetabs.TestCodeTab
+import javax.swing.JComponent
+import javax.swing.SwingConstants
 
 class TestCaseDetailsRightView(val project: Project) : RightView, Disposable {
-    private lateinit var testCaseExecution: TestCaseExecution
+    private val tabbedPane = JBTabsPaneImpl(project, SwingConstants.TOP, this)
 
-    private val nameLabel = Label("")
-    private val testSuiteNameLabel = Label("")
-    private val classNameLabel = Label("")
-    private val timeLabel = Label("")
-    private val createdAtLabel = Label("")
-    private val failureMessageTextArea = JTextArea(3, 10)
-    private val failureTypeLabel = Label("")
-    private val failureContentTextArea = JTextArea(8, 10)
+    private val tabs = listOf(DetailsTab(project), TestCodeTab(project), CodeUnderTestTab(project))
 
-    private val testCaseCodeEditor = TestCaseEditorField(project)
+    init {
+        tabs.forEach {
+            tabbedPane.tabs.addTab(TabInfo(it.getComponent()).setText(it.tabName).setObject(it))
+        }
 
-    private val panel = panel {
-        row {
-            label("Name:")
-            nameLabel()
-            button("Open Test") {
-                testCaseExecution.getMethod(project)?.navigate(true)
+        tabbedPane.tabs.addListener(
+            object : TabsListener {
+                override fun selectionChanged(oldSelection: TabInfo, newSelection: TabInfo) {
+                    (newSelection.`object` as TestCaseTab).activate()
+                }
             }
-        }
-        row {
-            label("Test Suite Name:")
-            testSuiteNameLabel()
-        }
-        row {
-            label("Class Name:")
-            classNameLabel()
-        }
-        row {
-            label("Time:")
-            timeLabel()
-        }
-        row {
-            label("Run at:")
-            createdAtLabel()
-        }
-        row {
-            label("Failure message:")
-            failureMessageTextArea()
-        }
-        row {
-            label("Failure type:")
-            failureTypeLabel()
-        }
-        row {
-            label("Failure content:")
-            failureContentTextArea()
-        }
-        row {
-            label("Test code:")
-            testCaseCodeEditor()
-        }
+        )
     }
 
-    override fun getPanel() = panel
+    override fun getPanel(): JComponent = tabbedPane.component
 
     override fun hide() {
-        panel.isVisible = false
+        tabbedPane.component.isVisible = false
     }
 
     override fun show() {
-        panel.isVisible = true
+        tabbedPane.selectedIndex = 0
+        tabbedPane.component.isVisible = true
     }
 
     fun setTestCaseExecution(testCaseExecution: TestCaseExecution) {
-        this.testCaseExecution = testCaseExecution
-
-        with(testCaseExecution) {
-            nameLabel.text = name
-            testSuiteNameLabel.text = testSuiteName
-            classNameLabel.text = className
-            timeLabel.text = time.toString()
-            createdAtLabel.text = createdAt.toString()
+        tabs.forEach {
+            it.setTestCaseExecution(testCaseExecution)
         }
 
-        GlobalScope.launch {
-            with(testCaseExecution.details()) {
-                ApplicationManager.getApplication().invokeLater {
-                    failureMessageTextArea.text = failureMessage
-                    failureTypeLabel.text = failureType
-                    failureContentTextArea.text = failureContent
-                }
-            }
-        }
-
-        testCaseCodeEditor.showTestMethod(testCaseExecution.getMethod(project))
+        tabs.firstOrNull()?.activate()
     }
 
-    override fun dispose() {
-        testCaseCodeEditor.editor?.let { EditorFactory.getInstance().releaseEditor(it) }
+    override fun dispose() = tabs.forEach {
+        if (it is Disposable) {
+            it.dispose()
+        }
     }
 }

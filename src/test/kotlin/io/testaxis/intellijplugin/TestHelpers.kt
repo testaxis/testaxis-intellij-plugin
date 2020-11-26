@@ -59,7 +59,8 @@ fun fakeTestCaseExecutionDetails(
     failureMessage: String? = null,
     failureType: String? = null,
     failureContent: String? = null,
-) = TestCaseExecutionDetails(failureMessage, failureType, failureContent)
+    coveredLines: Map<String, List<Int>> = emptyMap(),
+) = TestCaseExecutionDetails(failureMessage, failureType, failureContent, coveredLines)
 
 fun aFewSecondsAgo(seconds: Int = 1): Date = Calendar.getInstance().apply {
     set(Calendar.SECOND, get(Calendar.SECOND) - seconds)
