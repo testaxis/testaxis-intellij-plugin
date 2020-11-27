@@ -7,6 +7,8 @@
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.java</depends>
+    <depends>com.intellij.modules.vcs</depends>
+    <depends>Git4Idea</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceInterface="io.testaxis.intellijplugin.services.ApiService"
@@ -14,6 +16,7 @@
         <projectService serviceInterface="io.testaxis.intellijplugin.services.WebSocketService"
                         serviceImplementation="io.testaxis.intellijplugin.services.TestAxisWebSocketService"/>
         <projectService serviceImplementation="io.testaxis.intellijplugin.services.PsiService"/>
+        <projectService serviceImplementation="io.testaxis.intellijplugin.services.GitService"/>
 
         <toolWindow id="TestAxis" anchor="bottom"
                     factoryClass="io.testaxis.intellijplugin.toolwindow.TestReportToolWindowFactory"/>
