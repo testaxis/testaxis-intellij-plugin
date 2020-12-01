@@ -28,7 +28,8 @@ data class Build(
 
     fun labelMaker() = BuildLabelMaker(this)
 
-    suspend fun retrieveTestCaseExecutions() = service<ApiService>().getTestCaseExecutions(this)
+    suspend fun retrieveTestCaseExecutions() =
+        service<ApiService>().getTestCaseExecutions(this).onEach { it.build = this }
 }
 
 class BuildLabelMaker(val build: Build) {
