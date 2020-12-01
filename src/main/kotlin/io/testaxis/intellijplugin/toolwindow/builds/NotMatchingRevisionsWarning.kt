@@ -11,9 +11,6 @@ import io.testaxis.intellijplugin.services.GitService
 class NotMatchingRevisionsWarning(val project: Project, val build: Build?) : EditorNotificationPanel(YELLOW) {
 
     fun shouldBeApplied(): Boolean {
-        println(build?.commit)
-        println(project.service<GitService>().currentCommit())
-
         if (build == null) {
             return true
         }
