@@ -58,4 +58,6 @@ class BuildNotifier(val project: Project) {
 
     private fun Notification.addInspectBuildAction(name: String, build: Build) =
         addAction(InspectBuildAction(project, name, build))
+
+    private fun Build.label(): String = labelMaker().createString()
 }

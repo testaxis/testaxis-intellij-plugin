@@ -3,7 +3,6 @@ package io.testaxis.intellijplugin.toolwindow.builds.tree
 import com.intellij.icons.AllIcons
 import com.intellij.ide.projectView.PresentationData
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.treeStructure.SimpleNode
 import io.testaxis.intellijplugin.diffForHumans
 import io.testaxis.intellijplugin.models.Build
@@ -39,17 +38,9 @@ class BuildNode(val build: Build) : SimpleNode(), SecondaryInformationHolder {
     override fun update(data: PresentationData) {
         super.update(data)
 
-        data.presentableText = build.label()
-        data.tooltip = build.label()
-
-        data.addText("[${build.branch}] ", SimpleTextAttributes.GRAYED_BOLD_ATTRIBUTES)
-        data.addText("Build for ", SimpleTextAttributes.REGULAR_ATTRIBUTES)
-
-        if (build.pr?.isNotEmpty() == true) {
-            data.addText("PR #${build.pr} / ", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
-        }
-
-        data.addText("commit ${build.shortCommitHash()}", SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES)
+        data.tooltip = build.labelMaker().withCreatedAt().createString()
+        data.clearText()
+        build.labelMaker().withCommitMessage().createItems().forEach { data.addText(it.text, it.attributes) }
 
         data.setIcon(build.status.icon)
     }

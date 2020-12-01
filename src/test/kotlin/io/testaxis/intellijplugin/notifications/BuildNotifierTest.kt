@@ -58,7 +58,7 @@ class BuildNotifierTest : IntelliJPlatformTest() {
             expectThat(groupId) isEqualTo BuildNotifier.SUCCESS_NOTIFICATION_GROUP_ID
             expectThat(type) isEqualTo NotificationType.INFORMATION
             expectThat(icon) isEqualTo BuildStatus.SUCCESS.icon
-            expectThat(title) isEqualTo newBuild.label()
+            expectThat(title) isEqualTo newBuild.labelMaker().createString()
 
             expectThat(actions) consistsOfInspectBuildAction newBuild
         }
@@ -73,7 +73,7 @@ class BuildNotifierTest : IntelliJPlatformTest() {
             expectThat(groupId) isEqualTo BuildNotifier.FAILED_NOTIFICATION_GROUP_ID
             expectThat(type) isEqualTo NotificationType.WARNING
             expectThat(icon) isEqualTo BuildStatus.BUILD_FAILED.icon
-            expectThat(title) isEqualTo newBuild.label()
+            expectThat(title) isEqualTo newBuild.labelMaker().createString()
 
             expectThat(actions) consistsOfInspectBuildAction newBuild
         }
@@ -88,7 +88,7 @@ class BuildNotifierTest : IntelliJPlatformTest() {
             expectThat(groupId) isEqualTo BuildNotifier.FAILED_NOTIFICATION_GROUP_ID
             expectThat(type) isEqualTo NotificationType.ERROR
             expectThat(icon) isEqualTo BuildStatus.TESTS_FAILED.icon
-            expectThat(title) isEqualTo newBuild.label()
+            expectThat(title) isEqualTo newBuild.labelMaker().createString()
 
             expectThat(actions) consistsOfInspectBuildAction newBuild
         }
@@ -103,7 +103,7 @@ class BuildNotifierTest : IntelliJPlatformTest() {
             expectThat(groupId) isEqualTo BuildNotifier.SUCCESS_NOTIFICATION_GROUP_ID
             expectThat(type) isEqualTo NotificationType.INFORMATION
             expectThat(icon) isEqualTo BuildStatus.UNKNOWN.icon
-            expectThat(title) isEqualTo newBuild.label()
+            expectThat(title) isEqualTo newBuild.labelMaker().createString()
 
             expectThat(actions) consistsOfInspectBuildAction newBuild
         }

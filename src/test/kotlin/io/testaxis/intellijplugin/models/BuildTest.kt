@@ -13,14 +13,15 @@ class BuildTest : IntelliJPlatformTest() {
     fun `it can create a label to represent a build without a pr`() {
         val build = fakeBuild()
 
-        expectThat(build.label()) isEqualTo "[new-feature] Build for commit 042edd33 | moments ago"
+        expectThat(build.labelMaker().createString()) isEqualTo "[new-feature] Build for commit 042edd33 "
     }
 
     @Test
     fun `it can create a label to represent a build with a pr`() {
         val build = fakeBuild(pr = "35")
 
-        expectThat(build.label()) isEqualTo "[new-feature] Build for PR #35 / commit 042edd33 | moments ago"
+        expectThat(build.labelMaker().createString()) isEqualTo
+            "[new-feature] Build for PR #35 / commit 042edd33 "
     }
 
     @Test
