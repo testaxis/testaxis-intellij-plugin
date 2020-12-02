@@ -16,7 +16,8 @@
         <projectService serviceInterface="io.testaxis.intellijplugin.services.WebSocketService"
                         serviceImplementation="io.testaxis.intellijplugin.services.TestAxisWebSocketService"/>
         <projectService serviceImplementation="io.testaxis.intellijplugin.services.PsiService"/>
-        <projectService serviceImplementation="io.testaxis.intellijplugin.services.GitService"/>
+        <projectService serviceInterface="io.testaxis.intellijplugin.services.GitService"
+                        serviceImplementation="io.testaxis.intellijplugin.services.GitServiceImplementation"/>
 
         <toolWindow id="TestAxis" anchor="bottom"
                     factoryClass="io.testaxis.intellijplugin.toolwindow.TestReportToolWindowFactory"/>

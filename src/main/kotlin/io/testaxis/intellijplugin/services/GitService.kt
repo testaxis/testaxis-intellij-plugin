@@ -3,10 +3,22 @@ package io.testaxis.intellijplugin.services
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import git4idea.GitUtil
+import git4idea.branch.GitBrancher
 import git4idea.history.GitHistoryUtils
 import git4idea.repo.GitRepository
 
-class GitService(val project: Project) {
+interface GitService {
+    val project: Project
+    val pluginCheckoutListeners: MutableList<() -> Unit>
+
+    fun retrieveCommitMessages(hashes: List<String>): Map<String, String>
+    fun currentCommit(): String?
+    fun checkout(revision: String)
+}
+
+class GitServiceImplementation(override val project: Project) : GitService {
+    override val pluginCheckoutListeners = mutableListOf<() -> Unit>()
+
     private fun repository(): GitRepository = GitUtil.getRepositoryManager(project).repositories.apply {
         if (isEmpty()) {
             println("No git repositories found.")
@@ -23,7 +35,14 @@ class GitService(val project: Project) {
     }.first()
 
     @Suppress("SpreadOperator")
-    fun retrieveCommitMessages(hashes: List<String>): Map<String, String> =
+    override fun retrieveCommitMessages(hashes: List<String>): Map<String, String> =
         GitHistoryUtils.collectCommitsMetadata(project, repository().root, *hashes.toTypedArray())
             ?.map { it.id.asString() to it.subject }?.toMap() ?: emptyMap()
+
+    override fun currentCommit(): String? = repository().currentRevision
+
+    override fun checkout(revision: String) =
+        GitBrancher.getInstance(project).checkout(revision, false, listOf(repository())) {
+            pluginCheckoutListeners.forEach { it() }
+        }
 }

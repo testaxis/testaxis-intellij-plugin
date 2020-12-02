@@ -9,6 +9,7 @@ import com.intellij.ui.components.JBList
 import com.intellij.util.ui.components.BorderLayoutPanel
 import io.testaxis.intellijplugin.models.TestCaseExecution
 import io.testaxis.intellijplugin.services.PsiService
+import io.testaxis.intellijplugin.toolwindow.builds.NotMatchingRevisionsWarning
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.awt.Component
@@ -27,6 +28,7 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab {
         cellRenderer = CoveredFileCellRenderer()
     }
 
+    private val panel = BorderLayoutPanel()
     private val editor = TestCodeEditorField(project)
 
     init {
@@ -42,14 +44,18 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab {
         coveredFilesList.selectedIndex = 0
     }
 
-    override fun getComponent(): JComponent = OnePixelSplitter(SPLITTER_PROPORTION_ONE_THIRD).apply {
-        firstComponent = BorderLayoutPanel().apply {
-            add(coveredFilesList)
-        }
+    override fun getComponent(): JComponent = panel.apply {
+        add(
+            OnePixelSplitter(SPLITTER_PROPORTION_ONE_THIRD).apply {
+                firstComponent = BorderLayoutPanel().apply {
+                    add(coveredFilesList)
+                }
 
-        secondComponent = BorderLayoutPanel().apply {
-            add(editor)
-        }
+                secondComponent = BorderLayoutPanel().apply {
+                    add(editor)
+                }
+            }
+        )
     }
 
     override fun setTestCaseExecution(testCaseExecution: TestCaseExecution) {
@@ -64,6 +70,13 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab {
                         coveredFilesList.model = model
                     }
                 }
+            }
+        }
+
+        panel.components.filterIsInstance<NotMatchingRevisionsWarning>().forEach { panel.remove(it) }
+        NotMatchingRevisionsWarning(project, testCaseExecution.build).let {
+            if (it.shouldBeApplied()) {
+                panel.addToTop(it)
             }
         }
     }

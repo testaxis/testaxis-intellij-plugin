@@ -71,6 +71,12 @@ class BuildsTree : Disposable {
         }
     }
 
+    fun selectedTestCase(): TestCaseExecution? =
+        when (val simpleNode = (tree.selectionPath?.lastPathComponent as DefaultMutableTreeNode).userObject) {
+            is TestCaseNode -> simpleNode.testCase
+            else -> null
+        }
+
     private fun createTreeModel(data: List<Build>): TreeModel {
         val root = RootNode(data)
         val treeModel = StructureTreeModel(SimpleTreeStructure.Impl(root), this)

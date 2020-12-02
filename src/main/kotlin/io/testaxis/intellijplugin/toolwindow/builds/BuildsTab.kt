@@ -64,6 +64,12 @@ class BuildsTab(val project: Project) : Disposable {
             MessageConfiguration.BUILD_SHOULD_BE_SELECTED_TOPIC,
             MessageConfiguration.BuildNotifier { buildsTree.selectAndExpand(it) }
         )
+
+        project.service<GitService>().pluginCheckoutListeners.add {
+            buildsTree.selectedTestCase()?.let {
+                stateManager.showAndGet<TestCaseDetailsRightView>().setTestCaseExecution(it)
+            }
+        }
     }
 
     fun create(): JComponent {

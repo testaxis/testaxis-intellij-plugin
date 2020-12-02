@@ -20,6 +20,7 @@ data class TestCaseExecution(
     val time: Double,
     val passed: Boolean,
     val createdAt: Date,
+    var build: Build? = null
 ) {
     private lateinit var cachedDetails: TestCaseExecutionDetails
 
