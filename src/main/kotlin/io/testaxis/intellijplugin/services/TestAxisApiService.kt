@@ -24,7 +24,11 @@ interface ApiService {
 class TestAxisApiService @NonInjectable constructor(val client: HttpClient = defaultClient()) : ApiService, Disposable {
     private fun testAxisApiUrl(url: String) = config(config.testaxis.api.url) + url
 
-    override suspend fun getBuilds(): List<Build> = client.get(testAxisApiUrl("/projects/1/builds"))
+    override suspend fun getBuilds(): List<Build> =
+        client.get<List<Build>>(testAxisApiUrl("/projects/1/builds")).also { builds ->
+            builds.sortedBy { it.id }.windowed(size = 2).forEach { it[1].previousBuild = it[0] }
+            // TODO: Needs better logic to determine the previous build
+        }
 
     override suspend fun getTestCaseExecutions(build: Build): List<TestCaseExecution> =
         client.get(testAxisApiUrl("/projects/1/builds/${build.id}/testcaseexecutions"))

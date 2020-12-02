@@ -5,6 +5,7 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
+import com.intellij.openapi.progress.runBackgroundableTask
 import com.intellij.openapi.project.Project
 import com.intellij.ui.OnePixelSplitter
 import com.intellij.ui.ToolbarDecorator
@@ -94,21 +95,16 @@ class BuildsTab(val project: Project) : Disposable {
     private fun createBuildsTreePanel() =
         ToolbarDecorator.createDecorator(buildsTree.render()).createPanel()
 
-    private fun updateBuilds() =
-        ProgressManager.getInstance().run(
-            object : Task.Backgroundable(project, "Retrieving builds", false) {
-                override fun run(indicator: ProgressIndicator) {
-                    runBlocking {
-                        val builds = service<ApiService>().getBuilds()
+    private fun updateBuilds() = runBackgroundableTask("Retrieving builds", project, cancellable = false) {
+        runBlocking {
+            val builds = service<ApiService>().getBuilds()
 
-                        project.service<GitService>().retrieveCommitMessages(builds.map { it.commit }.distinct())
-                            .let { messages -> builds.forEach { it.commitMessage = messages[it.commit] } }
+            project.service<GitService>().retrieveCommitMessages(builds.map { it.commit }.distinct())
+                .let { messages -> builds.forEach { it.commitMessage = messages[it.commit] } }
 
-                        buildsTree.updateData(builds)
-                    }
-                }
-            }
-        )
+            buildsTree.updateData(builds)
+        }
+    }
 
     override fun dispose() {
         TODO("Not yet implemented")

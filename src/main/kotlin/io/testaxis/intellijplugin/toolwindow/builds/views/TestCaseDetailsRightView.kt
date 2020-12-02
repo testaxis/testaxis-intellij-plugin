@@ -1,11 +1,13 @@
 package io.testaxis.intellijplugin.toolwindow.builds.views
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.ui.JBTabsPaneImpl
 import com.intellij.ui.tabs.TabInfo
 import com.intellij.ui.tabs.TabsListener
 import io.testaxis.intellijplugin.models.TestCaseExecution
+import io.testaxis.intellijplugin.services.GitService
 import io.testaxis.intellijplugin.toolwindow.builds.views.testcasetabs.CodeUnderTestTab
 import io.testaxis.intellijplugin.toolwindow.builds.views.testcasetabs.DetailsTab
 import io.testaxis.intellijplugin.toolwindow.builds.views.testcasetabs.TestCaseTab

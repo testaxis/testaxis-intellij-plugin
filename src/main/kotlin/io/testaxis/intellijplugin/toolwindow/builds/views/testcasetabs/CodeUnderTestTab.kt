@@ -2,16 +2,21 @@ package io.testaxis.intellijplugin.toolwindow.builds.views.testcasetabs
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
+import com.intellij.openapi.progress.runBackgroundableTask
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vcs.changes.Change
 import com.intellij.ui.CollectionListModel
 import com.intellij.ui.OnePixelSplitter
 import com.intellij.ui.components.JBList
 import com.intellij.util.ui.components.BorderLayoutPanel
+import io.testaxis.intellijplugin.gitchanches.changes
+import io.testaxis.intellijplugin.gitchanches.textualDiff
 import io.testaxis.intellijplugin.models.TestCaseExecution
 import io.testaxis.intellijplugin.services.PsiService
 import io.testaxis.intellijplugin.toolwindow.builds.NotMatchingRevisionsWarning
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.awt.Component
 import javax.swing.DefaultListCellRenderer
 import javax.swing.JComponent
@@ -36,6 +41,9 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab {
             if (coveredFilesList.selectedValue != null) {
                 editor.showFile(coveredFilesList.selectedValue.getFile(project))
                 coveredFilesList.selectedValue.lines.forEach { editor.highlightLine(it) }
+
+                println("Change: ${coveredFilesList.selectedValue.vcsChange}")
+                println("Change diff: ${coveredFilesList.selectedValue.vcsChange?.textualDiff()}")
             }
         }
     }
@@ -61,12 +69,19 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab {
     override fun setTestCaseExecution(testCaseExecution: TestCaseExecution) {
         editor.showText("")
 
-        val model = CollectionListModel<CoveredFile>()
-        GlobalScope.launch {
-            with(testCaseExecution.details()) {
+        runBackgroundableTask("Collecting covered files", project, cancellable = false) {
+            val model = CollectionListModel<CoveredFile>()
+
+            val changes = testCaseExecution.build?.changes(project)
+
+            println("Changes in build: $changes")
+
+            runBlocking {
+                val details = testCaseExecution.details()
+
                 ApplicationManager.getApplication().invokeLater {
-                    coveredLines.forEach { (fileName, lines) ->
-                        model.add(CoveredFile(fileName, lines))
+                    details.coveredLines.forEach { (fileName, lines) ->
+                        model.add(CoveredFile(fileName, lines, changes?.changeForPartialFileName(fileName)))
                         coveredFilesList.model = model
                     }
                 }
@@ -81,7 +96,7 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab {
         }
     }
 
-    private data class CoveredFile(val fileName: String, val lines: List<Int>) {
+    private data class CoveredFile(val fileName: String, val lines: List<Int>, val vcsChange: Change?) {
         fun getFile(project: Project) = project.service<PsiService>().findFileByRelativePath(fileName)
     }
 

@@ -23,6 +23,7 @@ data class Build(
     val createdAt: Date,
 ) {
     var commitMessage: String? = null
+    var previousBuild: Build? = null
 
     fun shortCommitHash() = if (commit.length > 8) commit.subSequence(0, 8) else commit
 

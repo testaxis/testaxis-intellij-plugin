@@ -62,4 +62,8 @@ class FakeGitService : GitService {
     override fun checkout(revision: String) {
         TODO("Not yet implemented")
     }
+
+    override fun getChanges() {
+        TODO("Not yet implemented")
+    }
 }
