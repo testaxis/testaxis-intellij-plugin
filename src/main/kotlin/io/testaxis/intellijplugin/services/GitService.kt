@@ -1,28 +1,25 @@
 package io.testaxis.intellijplugin.services
 
-import com.intellij.diff.comparison.ComparisonManager
-import com.intellij.diff.comparison.ComparisonPolicy
-import com.intellij.diff.fragments.LineFragment
-import com.intellij.openapi.progress.DumbProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
-import com.intellij.openapi.vcs.changes.Change
+import com.intellij.openapi.vcs.VcsException
+import git4idea.GitCommit
 import git4idea.GitUtil
 import git4idea.branch.GitBrancher
 import git4idea.changes.GitChangeUtils
 import git4idea.history.GitHistoryUtils
 import git4idea.repo.GitRepository
-import io.testaxis.intellijplugin.gitchanches.ChangesList
-import java.io.File
+import io.testaxis.intellijplugin.vcs.ChangesList
 
 interface GitService {
     val project: Project
     val pluginCheckoutListeners: MutableList<() -> Unit>
 
-    fun retrieveCommitMessages(hashes: List<String>): Map<String, String>
+    fun retrieveCommitMessages(hashes: List<String>, ignoreErrors: Boolean = false): Map<String, String>
     fun currentCommit(): String?
     fun checkout(revision: String)
     fun changes(oldRevision: String, newRevision: String): ChangesList?
+    fun historyUpToCommit(hash: String, max: Int = 100, ignoreErrors: Boolean = false): List<GitCommit>
 }
 
 class GitServiceImplementation(override val project: Project) : GitService {
@@ -44,9 +41,17 @@ class GitServiceImplementation(override val project: Project) : GitService {
     }.first()
 
     @Suppress("SpreadOperator")
-    override fun retrieveCommitMessages(hashes: List<String>): Map<String, String> =
-        GitHistoryUtils.collectCommitsMetadata(project, repository().root, *hashes.toTypedArray())
-            ?.map { it.id.asString() to it.subject }?.toMap() ?: emptyMap()
+    override fun retrieveCommitMessages(hashes: List<String>, ignoreErrors: Boolean): Map<String, String> =
+        try {
+            GitHistoryUtils.collectCommitsMetadata(project, repository().root, *hashes.toTypedArray())
+                ?.map { it.id.asString() to it.subject }?.toMap() ?: emptyMap()
+        } catch (e: VcsException) {
+            if (!ignoreErrors) {
+                throw e
+            }
+            println("Commit message could not be retrieved for $hashes: $e")
+            emptyMap()
+        }
 
     override fun currentCommit(): String? = repository().currentRevision
 
@@ -57,6 +62,19 @@ class GitServiceImplementation(override val project: Project) : GitService {
 
     override fun changes(oldRevision: String, newRevision: String): ChangesList? =
         GitChangeUtils.getDiff(repository(), oldRevision, newRevision,true)?.toList()?.let { ChangesList(it) }
+
+    override fun historyUpToCommit(hash: String, max: Int, ignoreErrors: Boolean): List<GitCommit> =
+        try {
+            repository().let { repo ->
+                GitHistoryUtils.history(project, repo.root, hash, "--max-count=$max")
+            }
+        } catch (e: VcsException) {
+            if (!ignoreErrors) {
+                throw e
+            }
+            println("History could not be retrieved for $hash: $e")
+            emptyList()
+        }
 
     // Replace with a map of changes to the changed file list. ChangedFile class should be top-level and have behavior
     // to get the textual diff and information about the type etc. Hm basically that becomes just the `Change` class with diff functionality.

@@ -9,13 +9,14 @@ import com.intellij.ui.CollectionListModel
 import com.intellij.ui.OnePixelSplitter
 import com.intellij.ui.components.JBList
 import com.intellij.util.ui.components.BorderLayoutPanel
-import io.testaxis.intellijplugin.gitchanches.changes
-import io.testaxis.intellijplugin.gitchanches.textualDiff
+import io.testaxis.intellijplugin.models.Build
+import io.testaxis.intellijplugin.vcs.changes
+import io.testaxis.intellijplugin.vcs.textualDiff
 import io.testaxis.intellijplugin.models.TestCaseExecution
 import io.testaxis.intellijplugin.services.PsiService
 import io.testaxis.intellijplugin.toolwindow.builds.NotMatchingRevisionsWarning
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import io.testaxis.intellijplugin.toolwindow.builds.views.BuildsUpdateHandler
+import io.testaxis.intellijplugin.vcs.findPreviousBuild
 import kotlinx.coroutines.runBlocking
 import java.awt.Component
 import javax.swing.DefaultListCellRenderer
@@ -25,7 +26,7 @@ import javax.swing.ListSelectionModel
 
 private const val SPLITTER_PROPORTION_ONE_THIRD = .33f
 
-class CodeUnderTestTab(val project: Project) : TestCaseTab {
+class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler {
     override val tabName = "Code Under Test"
 
     private val coveredFilesList = JBList(CollectionListModel<CoveredFile>()).apply {
@@ -35,6 +36,8 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab {
 
     private val panel = BorderLayoutPanel()
     private val editor = TestCodeEditorField(project)
+
+    private var buildHistory: List<Build> = emptyList()
 
     init {
         coveredFilesList.addListSelectionListener {
@@ -72,7 +75,9 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab {
         runBackgroundableTask("Collecting covered files", project, cancellable = false) {
             val model = CollectionListModel<CoveredFile>()
 
-            val changes = testCaseExecution.build?.changes(project)
+            val previousBuild = testCaseExecution.build?.findPreviousBuild(project, buildHistory)
+            // TODO: Add warning if previous build could not be found, most likely the build commit is not present locally
+            val changes = previousBuild?.let { testCaseExecution.build?.changes(project, previousBuild) }
 
             println("Changes in build: $changes")
 
@@ -82,8 +87,8 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab {
                 ApplicationManager.getApplication().invokeLater {
                     details.coveredLines.forEach { (fileName, lines) ->
                         model.add(CoveredFile(fileName, lines, changes?.changeForPartialFileName(fileName)))
-                        coveredFilesList.model = model
                     }
+                    coveredFilesList.model = model
                 }
             }
         }
@@ -114,5 +119,9 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab {
                 }
             }
         }
+    }
+
+    override fun handleNewBuilds(buildHistory: List<Build>) {
+        this.buildHistory = buildHistory
     }
 }

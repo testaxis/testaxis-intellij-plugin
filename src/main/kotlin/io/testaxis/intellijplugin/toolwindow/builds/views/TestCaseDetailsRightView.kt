@@ -1,13 +1,12 @@
 package io.testaxis.intellijplugin.toolwindow.builds.views
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.ui.JBTabsPaneImpl
 import com.intellij.ui.tabs.TabInfo
 import com.intellij.ui.tabs.TabsListener
+import io.testaxis.intellijplugin.models.Build
 import io.testaxis.intellijplugin.models.TestCaseExecution
-import io.testaxis.intellijplugin.services.GitService
 import io.testaxis.intellijplugin.toolwindow.builds.views.testcasetabs.CodeUnderTestTab
 import io.testaxis.intellijplugin.toolwindow.builds.views.testcasetabs.DetailsTab
 import io.testaxis.intellijplugin.toolwindow.builds.views.testcasetabs.TestCaseTab
@@ -15,7 +14,7 @@ import io.testaxis.intellijplugin.toolwindow.builds.views.testcasetabs.TestCodeT
 import javax.swing.JComponent
 import javax.swing.SwingConstants
 
-class TestCaseDetailsRightView(val project: Project) : RightView, Disposable {
+class TestCaseDetailsRightView(val project: Project) : RightView, BuildsUpdateHandler, Disposable {
     private val tabbedPane = JBTabsPaneImpl(project, SwingConstants.TOP, this)
 
     private val tabs = listOf(DetailsTab(project), TestCodeTab(project), CodeUnderTestTab(project))
@@ -58,4 +57,7 @@ class TestCaseDetailsRightView(val project: Project) : RightView, Disposable {
             it.dispose()
         }
     }
+
+    override fun handleNewBuilds(buildHistory: List<Build>) =
+        tabs.filterIsInstance<BuildsUpdateHandler>().forEach { it.handleNewBuilds(buildHistory) }
 }

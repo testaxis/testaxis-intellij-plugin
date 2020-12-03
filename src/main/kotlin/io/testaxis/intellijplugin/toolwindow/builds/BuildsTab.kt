@@ -2,9 +2,6 @@ package io.testaxis.intellijplugin.toolwindow.builds
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.service
-import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.progress.Task
 import com.intellij.openapi.progress.runBackgroundableTask
 import com.intellij.openapi.project.Project
 import com.intellij.ui.OnePixelSplitter
@@ -16,6 +13,7 @@ import io.testaxis.intellijplugin.services.GitService
 import io.testaxis.intellijplugin.services.WebSocketService
 import io.testaxis.intellijplugin.toolwindow.builds.tree.BuildsTree
 import io.testaxis.intellijplugin.toolwindow.builds.views.BuildDetailsRightView
+import io.testaxis.intellijplugin.toolwindow.builds.views.BuildsUpdateHandler
 import io.testaxis.intellijplugin.toolwindow.builds.views.RightView
 import io.testaxis.intellijplugin.toolwindow.builds.views.TestCaseDetailsRightView
 import io.testaxis.intellijplugin.toolwindow.builds.views.WelcomeRightView
@@ -43,7 +41,7 @@ const val SPLITTER_PROPORTION_ONE_THIRD = .33f
 class BuildsTab(val project: Project) : Disposable {
     private val stateManager = RightViewStateManager(
         WelcomeRightView(),
-        BuildDetailsRightView(),
+        BuildDetailsRightView(project),
         TestCaseDetailsRightView(project)
     )
 
@@ -99,10 +97,19 @@ class BuildsTab(val project: Project) : Disposable {
         runBlocking {
             val builds = service<ApiService>().getBuilds()
 
-            project.service<GitService>().retrieveCommitMessages(builds.map { it.commit }.distinct())
-                .let { messages -> builds.forEach { it.commitMessage = messages[it.commit] } }
+            // TODO: Right now we're doing this per commit to account for non-existing commits which let `git log` fail
+
+            builds.forEach {
+                project.service<GitService>().retrieveCommitMessages(listOf(it.commit), ignoreErrors = true)
+                    .let { messages -> it.commitMessage = messages[it.commit] }
+            }
+
+//            project.service<GitService>().retrieveCommitMessages(builds.map { it.commit }.distinct())
+//                .let { messages -> builds.forEach { it.commitMessage = messages[it.commit] } }
 
             buildsTree.updateData(builds)
+
+            stateManager.views.filterIsInstance<BuildsUpdateHandler>().forEach { it.handleNewBuilds(builds) }
         }
     }
 

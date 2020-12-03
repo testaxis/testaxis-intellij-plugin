@@ -1,4 +1,4 @@
-package io.testaxis.intellijplugin.gitchanches
+package io.testaxis.intellijplugin.vcs
 
 import com.intellij.diff.comparison.ComparisonManager
 import com.intellij.diff.comparison.ComparisonPolicy
@@ -13,12 +13,10 @@ import java.io.File
 
 private val changesForBuilds = mutableMapOf<Build, ChangesList?>()
 
-fun Build.changes(project: Project) = previousBuild?.let { previousBuild ->
+fun Build.changes(project: Project, previousBuild: Build) =
     changesForBuilds.computeIfAbsent(this) {
         project.service<GitService>().changes(previousBuild.commit, commit)
     }
-}
-
 
 data class ChangesList(val changes: List<Change>) {
     fun changeForFile(file: File) = changes
@@ -31,7 +29,6 @@ data class ChangesList(val changes: List<Change>) {
         .sortedBy { it.afterRevision?.file?.path?.length }
         .also { if (it.size > 1) println("There is more than one change for file ${fileName}.") }
         .firstOrNull()
-
 }
 
 fun Change.textualDiff(): List<LineFragment> {
