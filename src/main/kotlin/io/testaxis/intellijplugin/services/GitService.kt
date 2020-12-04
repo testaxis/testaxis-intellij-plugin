@@ -3,6 +3,8 @@ package io.testaxis.intellijplugin.services
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.vcs.VcsException
+import com.intellij.openapi.vcs.changes.Change
+import com.intellij.openapi.vcs.changes.actions.diff.ShowDiffAction
 import git4idea.GitCommit
 import git4idea.GitUtil
 import git4idea.branch.GitBrancher
@@ -20,6 +22,7 @@ interface GitService {
     fun checkout(revision: String)
     fun changes(oldRevision: String, newRevision: String): ChangesList?
     fun historyUpToCommit(hash: String, max: Int = 100, ignoreErrors: Boolean = false): List<GitCommit>
+    fun showDiff(change: Change)
 }
 
 class GitServiceImplementation(override val project: Project) : GitService {
@@ -75,6 +78,9 @@ class GitServiceImplementation(override val project: Project) : GitService {
             println("History could not be retrieved for $hash: $e")
             emptyList()
         }
+
+    override fun showDiff(change: Change) =
+        ShowDiffAction.showDiffForChange(project, listOf(change))
 
     // Replace with a map of changes to the changed file list. ChangedFile class should be top-level and have behavior
     // to get the textual diff and information about the type etc. Hm basically that becomes just the `Change` class with diff functionality.

@@ -31,11 +31,23 @@ data class ChangesList(val changes: List<Change>) {
         .firstOrNull()
 }
 
-fun Change.textualDiff(): List<LineFragment> {
-    return ComparisonManager.getInstance().compareLines(
+typealias TextualDiff = List<LineFragment>
+
+private val textualDiffCache = mutableMapOf<Change, TextualDiff>()
+
+fun Change.textualDiff(): TextualDiff = textualDiffCache.computeIfAbsent(this) {
+    ComparisonManager.getInstance().compareLinesInner(
         beforeRevision?.content ?: error("Diff can only be applied to modified files."),
         afterRevision?.content ?: error("Diff can only be applied to modified files."),
         ComparisonPolicy.DEFAULT,
         DumbProgressIndicator.INSTANCE
     )
+}
+
+fun TextualDiff.deletions() = sumBy { line ->
+    if (line.innerFragments == null) {
+        if (line.startOffset2 == line.endOffset2) 1 else 0
+    } else {
+        line.innerFragments?.count { it.startOffset2 == it.endOffset2 } ?: 0
+    }
 }
