@@ -97,16 +97,10 @@ class BuildsTab(val project: Project) : Disposable {
         runBlocking {
             val builds = service<ApiService>().getBuilds()
 
-            // TODO: Right now we're doing this per commit to account for non-existing commits which let `git log` fail
-
             builds.forEach {
-                project.service<GitService>().retrieveCommitMessages(listOf(it.commit), ignoreErrors = true)
-                    .let { messages -> it.commitMessage = messages[it.commit] }
+                project.service<GitService>().retrieveCommitMessage(it.commit, ignoreErrors = true)
+                    ?.let { message -> it.commitMessage = message }
             }
-
-//            project.service<GitService>().retrieveCommitMessages(builds.map { it.commit }.distinct())
-//                .let { messages -> builds.forEach { it.commitMessage = messages[it.commit] } }
-
             buildsTree.updateData(builds)
 
             stateManager.views.filterIsInstance<BuildsUpdateHandler>().forEach { it.handleNewBuilds(builds) }
