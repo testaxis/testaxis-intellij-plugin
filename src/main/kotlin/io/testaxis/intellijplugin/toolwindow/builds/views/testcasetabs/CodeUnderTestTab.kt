@@ -63,10 +63,7 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
                 coveredFilesList.selectedValue.lines.forEach { editor.highlightLine(it) }
 
                 coveredFilesList.selectedValue.vcsChange?.let { change ->
-                    println("Change: ${coveredFilesList.selectedValue.vcsChange}")
                     if (change.type == Change.Type.MODIFICATION) {
-                        println("Change diff: ${coveredFilesList.selectedValue.vcsChange?.textualDiff()}")
-
                         diffInformationPanel.isVisible = true
                         showFullDiffButton.replaceActionListener { project.service<GitService>().showDiff(change) }
 
