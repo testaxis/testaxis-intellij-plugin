@@ -14,6 +14,7 @@ import io.testaxis.intellijplugin.models.Build
 import io.testaxis.intellijplugin.models.TestCaseExecution
 import io.testaxis.intellijplugin.services.GitService
 import io.testaxis.intellijplugin.services.PsiService
+import io.testaxis.intellijplugin.toolwindow.builds.NoPreviousBuildWarning
 import io.testaxis.intellijplugin.toolwindow.builds.NotMatchingRevisionsWarning
 import io.testaxis.intellijplugin.toolwindow.builds.views.BuildsUpdateHandler
 import io.testaxis.intellijplugin.vcs.TextualDiff
@@ -105,9 +106,11 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
             val model = CollectionListModel<CoveredFile>()
 
             val previousBuild = testCaseExecution.build?.findPreviousBuild(project, buildHistory)
-            val changes = previousBuild?.let { testCaseExecution.build?.changes(project, previousBuild) }
+            if (previousBuild == null) {
+                panel.addToTop(NoPreviousBuildWarning(project))
+            }
 
-            println("Changes in build: $changes")
+            val changes = previousBuild?.let { testCaseExecution.build?.changes(project, previousBuild) }
 
             runBlocking {
                 val details = testCaseExecution.details()
