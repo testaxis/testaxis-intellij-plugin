@@ -1,6 +1,6 @@
 package io.testaxis.intellijplugin.toolwindow.builds.views.testcasetabs
 
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.invokeLater
 import com.intellij.openapi.components.service
 import com.intellij.openapi.progress.runBackgroundableTask
 import com.intellij.openapi.project.Project
@@ -106,8 +106,9 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
             val model = CollectionListModel<CoveredFile>()
 
             val previousBuild = testCaseExecution.build?.findPreviousBuild(project, buildHistory)
+
             if (previousBuild == null) {
-                panel.addToTop(NoPreviousBuildWarning(project))
+                invokeLater { panel.addToTop(NoPreviousBuildWarning(project)) }
             }
 
             val changes = previousBuild?.let { testCaseExecution.build?.changes(project, previousBuild) }
@@ -115,7 +116,7 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
             runBlocking {
                 val details = testCaseExecution.details()
 
-                ApplicationManager.getApplication().invokeLater {
+                invokeLater {
                     details.coveredLines.forEach { (fileName, lines) ->
                         model.add(CoveredFile(fileName, lines, changes?.changeForPartialFileName(fileName)))
                     }
