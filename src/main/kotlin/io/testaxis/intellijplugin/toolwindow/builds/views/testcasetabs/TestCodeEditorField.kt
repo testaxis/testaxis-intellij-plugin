@@ -86,9 +86,9 @@ class TestCodeEditorField(project: Project) : LanguageTextField(null, project, "
             HighlighterTargetArea.EXACT_RANGE
         )
 
-    fun highlightElement(element: PsiElement) = editor?.markupModel?.addRangeHighlighter(
-        element.textRange.startOffset,
-        element.textRange.endOffset,
+    fun highlightElement(element: PsiElement?) = editor?.markupModel?.addRangeHighlighter(
+        element?.textRange?.startOffset ?: 0,
+        element?.textRange?.endOffset ?: 0,
         LINE_HIGHLIGHT_LAYER,
         createHighlightAttributes(EditorColors.MODIFIED_LINES_COLOR),
         HighlighterTargetArea.LINES_IN_RANGE
