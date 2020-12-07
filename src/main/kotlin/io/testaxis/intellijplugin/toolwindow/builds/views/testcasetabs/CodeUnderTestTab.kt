@@ -114,12 +114,12 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
             val changes = previousBuild?.let { testCaseExecution.build?.changes(project, previousBuild) }
 
             runBlocking {
-                val details = testCaseExecution.details()
+                val coveredFiles = testCaseExecution.details().coveredLines.map { (fileName, lines) ->
+                    CoveredFile(fileName, lines, changes?.changeForPartialFileName(fileName))
+                }
 
                 runInEdt {
-                    details.coveredLines.forEach { (fileName, lines) ->
-                        model.add(CoveredFile(fileName, lines, changes?.changeForPartialFileName(fileName)))
-                    }
+                    coveredFiles.sortedBy { it.vcsChange?.type?.ordinal ?: Int.MAX_VALUE }.forEach { model.add(it) }
                     coveredFilesList.model = model
                 }
             }
