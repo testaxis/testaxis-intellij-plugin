@@ -61,7 +61,6 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
                 editor.showFile(coveredFilesList.selectedValue.getFile(project))
                 coveredFilesList.selectedValue.lines.forEach { editor.highlightLine(it) }
 
-
                 coveredFilesList.selectedValue.vcsChange?.let { change ->
                     println("Change: ${coveredFilesList.selectedValue.vcsChange}")
                     if (change.type == Change.Type.MODIFICATION) {
@@ -106,7 +105,6 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
             val model = CollectionListModel<CoveredFile>()
 
             val previousBuild = testCaseExecution.build?.findPreviousBuild(project, buildHistory)
-            // TODO: Add warning if previous build could not be found, most likely the build commit is not present locally
             val changes = previousBuild?.let { testCaseExecution.build?.changes(project, previousBuild) }
 
             println("Changes in build: $changes")

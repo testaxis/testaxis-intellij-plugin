@@ -3,13 +3,16 @@ package io.testaxis.intellijplugin
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vcs.changes.Change
 import com.intellij.testFramework.registerServiceInstance
+import git4idea.GitCommit
 import io.testaxis.intellijplugin.models.Build
 import io.testaxis.intellijplugin.models.TestCaseExecution
 import io.testaxis.intellijplugin.models.TestCaseExecutionDetails
 import io.testaxis.intellijplugin.services.ApiService
 import io.testaxis.intellijplugin.services.GitService
 import io.testaxis.intellijplugin.services.WebSocketService
+import io.testaxis.intellijplugin.vcs.ChangesList
 
 data class Fakes(
     val webSocketService: WebSocketService = FakeWebSocketService(),
@@ -55,7 +58,7 @@ class FakeGitService : GitService {
 
     override val pluginCheckoutListeners = mutableListOf<() -> Unit>()
 
-    override fun retrieveCommitMessages(hashes: List<String>): Map<String, String> = emptyMap()
+    override fun retrieveCommitMessage(hash: String, ignoreErrors: Boolean): String? = null
 
     override fun currentCommit(): String? = null
 
@@ -63,7 +66,15 @@ class FakeGitService : GitService {
         TODO("Not yet implemented")
     }
 
-    override fun getChanges() {
+    override fun changes(oldRevision: String, newRevision: String): ChangesList? {
+        TODO("Not yet implemented")
+    }
+
+    override fun historyUpToCommit(hash: String, max: Int, ignoreErrors: Boolean): List<GitCommit> {
+        TODO("Not yet implemented")
+    }
+
+    override fun showDiff(change: Change) {
         TODO("Not yet implemented")
     }
 }

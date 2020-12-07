@@ -27,7 +27,7 @@ data class ChangesList(val changes: List<Change>) {
     fun changeForPartialFileName(fileName: String) = changes
         .filter { it.afterRevision?.file?.path?.endsWith(fileName) ?: false }
         .sortedBy { it.afterRevision?.file?.path?.length }
-        .also { if (it.size > 1) println("There is more than one change for file ${fileName}.") }
+        .also { if (it.size > 1) println("There is more than one change for file $fileName.") }
         .firstOrNull()
 }
 
