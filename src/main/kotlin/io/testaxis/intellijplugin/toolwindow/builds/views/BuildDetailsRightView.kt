@@ -3,9 +3,13 @@ package io.testaxis.intellijplugin.toolwindow.builds.views
 import com.intellij.openapi.progress.runBackgroundableTask
 import com.intellij.openapi.project.Project
 import com.intellij.ui.SimpleColoredComponent
-import com.intellij.ui.layout.panel
+import com.intellij.ui.components.Label
 import io.testaxis.intellijplugin.models.Build
+import io.testaxis.intellijplugin.toolwindow.borderLayoutPanel
+import io.testaxis.intellijplugin.toolwindow.horizontal
+import io.testaxis.intellijplugin.toolwindow.vertical
 import io.testaxis.intellijplugin.vcs.findPreviousBuild
+import javax.swing.border.EmptyBorder
 
 class BuildDetailsRightView(val project: Project) : RightView, BuildsUpdateHandler {
     private val buildLabel = SimpleColoredComponent()
@@ -13,13 +17,15 @@ class BuildDetailsRightView(val project: Project) : RightView, BuildsUpdateHandl
 
     private var buildHistory: List<Build> = emptyList()
 
-    private val panel = panel {
-        row("Build") {
-            buildLabel()
-        }
-        row("Previous build") {
-            previousBuildLabel()
-        }
+    private val panel = borderLayoutPanel {
+        addToTop(
+            vertical(
+                horizontal(Label("Build"), buildLabel),
+                horizontal(Label("Previous Build"), previousBuildLabel)
+            )
+        )
+    }.apply {
+        border = EmptyBorder(20, 20, 20, 20)
     }
 
     override fun getPanel() = panel

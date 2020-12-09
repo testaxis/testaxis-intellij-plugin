@@ -3,6 +3,7 @@ package io.testaxis.intellijplugin.toolwindow.builds.views.testcasetabs
 import com.intellij.execution.testframework.ui.TestsConsoleBuilderImpl
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.runInEdt
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
@@ -24,7 +25,7 @@ import javax.swing.JLabel
 import javax.swing.SwingConstants
 import javax.swing.border.EmptyBorder
 
-class DetailsTab(val project: Project) : TestCaseTab {
+class DetailsTab(val project: Project) : TestCaseTab, Disposable {
     override val tabName = "Execution Details"
 
     private lateinit var testCaseExecution: TestCaseExecution
@@ -93,5 +94,9 @@ class DetailsTab(val project: Project) : TestCaseTab {
                 }
             }
         }
+    }
+
+    override fun dispose() {
+        failureContentConsole.dispose()
     }
 }
