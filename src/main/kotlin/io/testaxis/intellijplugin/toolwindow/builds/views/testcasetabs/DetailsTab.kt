@@ -10,24 +10,17 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.Label
 import com.intellij.ui.components.Link
-import com.intellij.util.ui.components.BorderLayoutPanel
 import io.testaxis.intellijplugin.diffForHumans
 import io.testaxis.intellijplugin.models.TestCaseExecution
+import io.testaxis.intellijplugin.toolwindow.CirclePanel
 import io.testaxis.intellijplugin.toolwindow.Icons
+import io.testaxis.intellijplugin.toolwindow.borderLayoutPanel
+import io.testaxis.intellijplugin.toolwindow.horizontal
+import io.testaxis.intellijplugin.toolwindow.vertical
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.awt.Color
-import java.awt.FlowLayout
-import java.awt.Graphics
-import java.awt.Graphics2D
-import java.awt.GridBagConstraints
-import java.awt.GridBagLayout
-import java.awt.RenderingHints
-import javax.swing.BorderFactory
-import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.JLabel
-import javax.swing.JPanel
 import javax.swing.SwingConstants
 import javax.swing.border.EmptyBorder
 
@@ -41,64 +34,6 @@ class DetailsTab(val project: Project) : TestCaseTab {
     private val testSuiteNameLabel = Label("").apply { foreground = foreground.darker() }
     private val timeLabel = Label("").apply { icon = Icons.Clock }
     private val createdAtLabel = Label("").apply { icon = Icons.Time }
-
-    private fun borderLayoutPanel(hgap: Int = 0, vgap: Int = 0, applyContent: BorderLayoutPanel.() -> Unit) =
-        BorderLayoutPanel(hgap, vgap).apply(applyContent)
-
-    private fun vertical(
-        vararg components: JComponent,
-        constraints: GridBagConstraints.() -> Unit = {},
-        applyContent: JPanel.() -> Unit = {}
-    ): JPanel =
-        JPanel().apply {
-            layout = GridBagLayout()
-
-            val componentConstraints = GridBagConstraints().apply {
-                weightx = 1.0
-                fill = GridBagConstraints.HORIZONTAL
-                gridwidth = GridBagConstraints.REMAINDER
-
-                anchor = GridBagConstraints.NORTH
-                weighty = 1.0
-
-                constraints()
-            }
-
-            components.forEach {
-                add(it, componentConstraints)
-            }
-
-            applyContent()
-        }
-
-    private fun horizontal(vararg components: JComponent, applyContent: JPanel.() -> Unit = {}): JPanel =
-        JPanel().apply {
-            layout = FlowLayout(FlowLayout.LEFT, 5, 0)
-
-            components.forEach { add(it) }
-
-            applyContent()
-        }
-
-    private fun JButton.withAction(action: () -> Unit) = this.also { it.addActionListener { action() } }
-
-    class CirclePanel(vararg components: JComponent, background: Color? = null) : JPanel() {
-        init {
-            components.forEach { add(it) }
-            this.background = background
-            border = BorderFactory.createEmptyBorder(5, 5, 5, 5)
-        }
-
-        override fun paintComponent(graphics: Graphics) {
-            graphics as Graphics2D
-
-            graphics.color = background
-
-            graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            graphics.fillOval(0, 0, graphics.clipBounds.width - 1, graphics.clipBounds.height - 1)
-            graphics.drawOval(0, 0, graphics.clipBounds.width - 1, graphics.clipBounds.height - 1)
-        }
-    }
 
     private val failureContentConsole =
         TestsConsoleBuilderImpl(
