@@ -29,5 +29,5 @@ fun Build.findPreviousBuild(project: Project, builds: List<Build>): Build? =
             .map { it.id.asString() }
             .drop(1) // first one is the build commit
 
-        builds.find { commitHashesHistory.contains(it.commit) }
+        builds.sortedByDescending { it.id }.find { commitHashesHistory.contains(it.commit) }
     }
