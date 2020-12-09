@@ -62,6 +62,8 @@ class FakeGitService : GitService {
 
     override fun currentCommit(): String? = null
 
+    override fun currentBranch(): String? = null
+
     override fun checkout(revision: String) {
         TODO("Not yet implemented")
     }

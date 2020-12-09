@@ -19,6 +19,7 @@ interface GitService {
 
     fun retrieveCommitMessage(hash: String, ignoreErrors: Boolean = false): String?
     fun currentCommit(): String?
+    fun currentBranch(): String?
     fun checkout(revision: String)
     fun changes(oldRevision: String, newRevision: String): ChangesList?
     fun historyUpToCommit(hash: String, max: Int = 100, ignoreErrors: Boolean = false): List<GitCommit>
@@ -55,6 +56,8 @@ class GitServiceImplementation(override val project: Project) : GitService {
         }
 
     override fun currentCommit(): String? = repository().currentRevision
+
+    override fun currentBranch() = repository().currentBranch?.name
 
     override fun checkout(revision: String) =
         GitBrancher.getInstance(project).checkout(revision, false, listOf(repository())) {
