@@ -27,6 +27,7 @@ import java.awt.event.ActionListener
 import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.JLabel
+import javax.swing.JScrollPane
 import javax.swing.ListSelectionModel
 
 private const val SPLITTER_PROPORTION_ONE_THIRD = .33f
@@ -88,7 +89,7 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
         add(
             OnePixelSplitter(SPLITTER_PROPORTION_ONE_THIRD).apply {
                 firstComponent = BorderLayoutPanel().apply {
-                    add(coveredFilesList)
+                    add(JScrollPane(coveredFilesList))
                 }
 
                 secondComponent = BorderLayoutPanel().apply {
