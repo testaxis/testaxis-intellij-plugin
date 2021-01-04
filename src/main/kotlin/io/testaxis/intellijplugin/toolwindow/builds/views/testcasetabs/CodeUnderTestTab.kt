@@ -1,26 +1,37 @@
 package io.testaxis.intellijplugin.toolwindow.builds.views.testcasetabs
 
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.runInEdt
 import com.intellij.openapi.components.service
+import com.intellij.openapi.progress.runBackgroundableTask
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vcs.changes.Change
 import com.intellij.ui.CollectionListModel
 import com.intellij.ui.OnePixelSplitter
 import com.intellij.ui.components.JBList
+import com.intellij.ui.layout.panel
 import com.intellij.util.ui.components.BorderLayoutPanel
+import io.testaxis.intellijplugin.models.Build
 import io.testaxis.intellijplugin.models.TestCaseExecution
+import io.testaxis.intellijplugin.services.GitService
 import io.testaxis.intellijplugin.services.PsiService
+import io.testaxis.intellijplugin.toolwindow.builds.NoPreviousBuildWarning
 import io.testaxis.intellijplugin.toolwindow.builds.NotMatchingRevisionsWarning
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import java.awt.Component
-import javax.swing.DefaultListCellRenderer
+import io.testaxis.intellijplugin.toolwindow.builds.views.BuildsUpdateHandler
+import io.testaxis.intellijplugin.vcs.TextualDiff
+import io.testaxis.intellijplugin.vcs.changes
+import io.testaxis.intellijplugin.vcs.deletions
+import io.testaxis.intellijplugin.vcs.findPreviousBuild
+import io.testaxis.intellijplugin.vcs.textualDiff
+import kotlinx.coroutines.runBlocking
+import java.awt.event.ActionListener
+import javax.swing.JButton
 import javax.swing.JComponent
-import javax.swing.JList
+import javax.swing.JLabel
 import javax.swing.ListSelectionModel
 
 private const val SPLITTER_PROPORTION_ONE_THIRD = .33f
 
-class CodeUnderTestTab(val project: Project) : TestCaseTab {
+class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler {
     override val tabName = "Code Under Test"
 
     private val coveredFilesList = JBList(CollectionListModel<CoveredFile>()).apply {
@@ -31,11 +42,37 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab {
     private val panel = BorderLayoutPanel()
     private val editor = TestCodeEditorField(project)
 
+    private val diffInformationLabel = JLabel()
+    private val showFullDiffButton = JButton("Show Full Diff")
+    private val diffInformationPanel = panel {
+        row {
+            diffInformationLabel()
+            showFullDiffButton()
+        }
+    }.apply { isVisible = false }
+
+    private var buildHistory: List<Build> = emptyList()
+
     init {
         coveredFilesList.addListSelectionListener {
+            diffInformationPanel.isVisible = false
+            diffInformationLabel.text = ""
+
             if (coveredFilesList.selectedValue != null) {
                 editor.showFile(coveredFilesList.selectedValue.getFile(project))
                 coveredFilesList.selectedValue.lines.forEach { editor.highlightLine(it) }
+
+                coveredFilesList.selectedValue.vcsChange?.let { change ->
+                    if (change.type == Change.Type.MODIFICATION) {
+                        diffInformationPanel.isVisible = true
+                        showFullDiffButton.replaceActionListener { project.service<GitService>().showDiff(change) }
+
+                        change.textualDiff().run {
+                            highlightChanges()
+                            giveOptionalDeletionsWarning()
+                        }
+                    }
+                }
             }
         }
     }
@@ -53,6 +90,7 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab {
 
                 secondComponent = BorderLayoutPanel().apply {
                     add(editor)
+                    addToBottom(diffInformationPanel)
                 }
             }
         )
@@ -61,14 +99,25 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab {
     override fun setTestCaseExecution(testCaseExecution: TestCaseExecution) {
         editor.showText("")
 
-        val model = CollectionListModel<CoveredFile>()
-        GlobalScope.launch {
-            with(testCaseExecution.details()) {
-                ApplicationManager.getApplication().invokeLater {
-                    coveredLines.forEach { (fileName, lines) ->
-                        model.add(CoveredFile(fileName, lines))
-                        coveredFilesList.model = model
-                    }
+        runBackgroundableTask("Collecting covered files", project, cancellable = false) {
+            val model = CollectionListModel<CoveredFile>()
+
+            val previousBuild = testCaseExecution.build?.findPreviousBuild(project, buildHistory)
+
+            if (previousBuild == null) {
+                runInEdt { panel.addToTop(NoPreviousBuildWarning(project)) }
+            }
+
+            val changes = previousBuild?.let { testCaseExecution.build?.changes(project, previousBuild) }
+
+            runBlocking {
+                val coveredFiles = testCaseExecution.details().coveredLines.map { (fileName, lines) ->
+                    CoveredFile(fileName, lines, changes?.changeForPartialFileName(fileName))
+                }
+
+                runInEdt {
+                    coveredFiles.sortedBy { it.vcsChange?.type?.ordinal ?: Int.MAX_VALUE }.forEach { model.add(it) }
+                    coveredFilesList.model = model
                 }
             }
         }
@@ -81,23 +130,33 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab {
         }
     }
 
-    private data class CoveredFile(val fileName: String, val lines: List<Int>) {
+    internal data class CoveredFile(val fileName: String, val lines: List<Int>, val vcsChange: Change?) {
         fun getFile(project: Project) = project.service<PsiService>().findFileByRelativePath(fileName)
+
+        fun name() = fileName.substringAfterLast('/').substringBeforeLast('.')
     }
 
-    private class CoveredFileCellRenderer : DefaultListCellRenderer() {
-        override fun getListCellRendererComponent(
-            list: JList<*>?,
-            value: Any?,
-            index: Int,
-            isSelected: Boolean,
-            cellHasFocus: Boolean
-        ): Component {
-            return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus).apply {
-                value?.let {
-                    text = (it as CoveredFile).fileName
-                }
-            }
+    override fun handleNewBuilds(buildHistory: List<Build>) {
+        this.buildHistory = buildHistory
+    }
+
+    private fun TextualDiff.highlightChanges() = onEach { line ->
+        line.innerFragments?.forEach {
+            editor.highlightRange(
+                line.startOffset2 + it.startOffset1,
+                line.startOffset2 + it.endOffset2
+            )
         }
     }
+
+    private fun TextualDiff.giveOptionalDeletionsWarning() = deletions().let {
+        if (it > 0) {
+            diffInformationLabel.text = "$it code fragments were removed, see the full diff."
+        }
+    }
+}
+
+fun JButton.replaceActionListener(actionListener: ActionListener) {
+    actionListeners.forEach { removeActionListener(it) }
+    addActionListener(actionListener)
 }

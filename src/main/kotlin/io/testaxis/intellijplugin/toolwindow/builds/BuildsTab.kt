@@ -2,9 +2,7 @@ package io.testaxis.intellijplugin.toolwindow.builds
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.service
-import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.progress.Task
+import com.intellij.openapi.progress.runBackgroundableTask
 import com.intellij.openapi.project.Project
 import com.intellij.ui.OnePixelSplitter
 import com.intellij.ui.ToolbarDecorator
@@ -15,6 +13,7 @@ import io.testaxis.intellijplugin.services.GitService
 import io.testaxis.intellijplugin.services.WebSocketService
 import io.testaxis.intellijplugin.toolwindow.builds.tree.BuildsTree
 import io.testaxis.intellijplugin.toolwindow.builds.views.BuildDetailsRightView
+import io.testaxis.intellijplugin.toolwindow.builds.views.BuildsUpdateHandler
 import io.testaxis.intellijplugin.toolwindow.builds.views.RightView
 import io.testaxis.intellijplugin.toolwindow.builds.views.TestCaseDetailsRightView
 import io.testaxis.intellijplugin.toolwindow.builds.views.WelcomeRightView
@@ -42,7 +41,7 @@ const val SPLITTER_PROPORTION_ONE_THIRD = .33f
 class BuildsTab(val project: Project) : Disposable {
     private val stateManager = RightViewStateManager(
         WelcomeRightView(),
-        BuildDetailsRightView(),
+        BuildDetailsRightView(project),
         TestCaseDetailsRightView(project)
     )
 
@@ -94,21 +93,19 @@ class BuildsTab(val project: Project) : Disposable {
     private fun createBuildsTreePanel() =
         ToolbarDecorator.createDecorator(buildsTree.render()).createPanel()
 
-    private fun updateBuilds() =
-        ProgressManager.getInstance().run(
-            object : Task.Backgroundable(project, "Retrieving builds", false) {
-                override fun run(indicator: ProgressIndicator) {
-                    runBlocking {
-                        val builds = service<ApiService>().getBuilds()
+    private fun updateBuilds() = runBackgroundableTask("Retrieving builds", project, cancellable = false) {
+        runBlocking {
+            val builds = service<ApiService>().getBuilds()
 
-                        project.service<GitService>().retrieveCommitMessages(builds.map { it.commit }.distinct())
-                            .let { messages -> builds.forEach { it.commitMessage = messages[it.commit] } }
-
-                        buildsTree.updateData(builds)
-                    }
-                }
+            builds.forEach {
+                project.service<GitService>().retrieveCommitMessage(it.commit, ignoreErrors = true)
+                    ?.let { message -> it.commitMessage = message }
             }
-        )
+            buildsTree.updateData(builds)
+
+            stateManager.views.filterIsInstance<BuildsUpdateHandler>().forEach { it.handleNewBuilds(builds) }
+        }
+    }
 
     override fun dispose() {
         TODO("Not yet implemented")

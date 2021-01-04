@@ -1,6 +1,6 @@
 package io.testaxis.intellijplugin.toolwindow.builds.views.testcasetabs
 
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.runInEdt
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.Label
 import com.intellij.ui.layout.panel
@@ -82,7 +82,7 @@ class DetailsTab(val project: Project) : TestCaseTab {
     override fun activate() {
         GlobalScope.launch {
             with(testCaseExecution.details()) {
-                ApplicationManager.getApplication().invokeLater {
+                runInEdt {
                     failureMessageTextArea.text = failureMessage
                     failureTypeLabel.text = failureType
                     failureContentTextArea.text = failureContent

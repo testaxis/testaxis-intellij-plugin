@@ -17,6 +17,7 @@ import com.intellij.psi.PsiMethod
 import com.intellij.ui.LanguageTextField
 
 private const val LINE_HIGHLIGHT_LAYER = 5950
+private const val FRAGMENT_HIGHLIGHT_LAYER = 5960
 
 class TestCodeEditorField(project: Project) : LanguageTextField(null, project, "PLACEHOLDER") {
     init {
@@ -75,6 +76,15 @@ class TestCodeEditorField(project: Project) : LanguageTextField(null, project, "
         LINE_HIGHLIGHT_LAYER,
         createHighlightAttributes(EditorColors.ADDED_LINES_COLOR)
     )
+
+    fun highlightRange(startOffset: Int, endOffset: Int, colorKey: ColorKey = EditorColors.MODIFIED_LINES_COLOR) =
+        editor?.markupModel?.addRangeHighlighter(
+            startOffset,
+            endOffset,
+            FRAGMENT_HIGHLIGHT_LAYER,
+            createHighlightAttributes(colorKey),
+            HighlighterTargetArea.EXACT_RANGE
+        )
 
     fun highlightElement(element: PsiElement) = editor?.markupModel?.addRangeHighlighter(
         element.textRange.startOffset,
