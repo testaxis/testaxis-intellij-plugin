@@ -30,7 +30,7 @@ private const val SPLITTER_PROPORTION_ONE_THIRD = .33f
 
 class BuildsTab(val project: Project) : Disposable {
     private val stateManager = RightViewStateManager(
-        WelcomeRightView(),
+        WelcomeRightView(project),
         BuildDetailsRightView(project),
         TestCaseDetailsRightView(project)
     )
@@ -41,7 +41,7 @@ class BuildsTab(val project: Project) : Disposable {
         StatusFilter { updateBuilds() }
     )
 
-    private val buildsTree = BuildsTree().apply {
+    private val buildsTree = BuildsTree(project).apply {
         buildSelectedListeners.add {
             stateManager.showAndGet<BuildDetailsRightView>().setBuild(it)
         }
@@ -58,6 +58,11 @@ class BuildsTab(val project: Project) : Disposable {
         project.messageBus.connect().subscribe(
             MessageConfiguration.BUILD_SHOULD_BE_SELECTED_TOPIC,
             MessageConfiguration.BuildNotifier { buildsTree.selectAndExpand(it) }
+        )
+
+        project.messageBus.connect().subscribe(
+            MessageConfiguration.API_SETTINGS_UPDATED_TOPIC,
+            MessageConfiguration.ApiSettingsNotifier { updateBuilds() }
         )
 
         project.service<GitService>().pluginCheckoutListeners.add {
@@ -99,7 +104,7 @@ class BuildsTab(val project: Project) : Disposable {
 
     private fun updateBuilds(): Unit = runBackgroundableTask("Retrieving builds", project, cancellable = false) {
         runBlocking {
-            val builds = service<ApiService>().getBuilds()
+            val builds = service<ApiService>().withProject(project).getBuilds()
 
             builds.filter { it.commitMessage == null }.forEach {
                 project.service<GitService>().retrieveCommitMessage(it.commit, ignoreErrors = true)

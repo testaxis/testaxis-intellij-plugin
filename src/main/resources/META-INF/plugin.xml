@@ -13,6 +13,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceInterface="io.testaxis.intellijplugin.services.ApiService"
                             serviceImplementation="io.testaxis.intellijplugin.services.TestAxisApiService"/>
+        <projectService serviceImplementation="io.testaxis.intellijplugin.settings.SettingsState" />
         <projectService serviceInterface="io.testaxis.intellijplugin.services.WebSocketService"
                         serviceImplementation="io.testaxis.intellijplugin.services.TestAxisWebSocketService"/>
         <projectService serviceImplementation="io.testaxis.intellijplugin.services.PsiService"/>
@@ -21,6 +22,10 @@
 
         <toolWindow id="TestAxis" anchor="bottom"
                     factoryClass="io.testaxis.intellijplugin.toolwindow.TestReportToolWindowFactory"/>
+
+        <projectConfigurable parentId="tools" instance="io.testaxis.intellijplugin.settings.SettingsConfigurable"
+                             id="io.testaxis.intellijplugin.settings.SettingsConfigurable" displayName="TestAxis"
+                             nonDefaultProject="true"/>
     </extensions>
 
     <applicationListeners>

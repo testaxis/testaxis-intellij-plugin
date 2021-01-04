@@ -2,6 +2,7 @@ package io.testaxis.intellijplugin.toolwindow.builds.tree
 
 import com.intellij.icons.AllIcons
 import com.intellij.ide.projectView.PresentationData
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.ui.treeStructure.SimpleNode
 import io.testaxis.intellijplugin.diffForHumans
@@ -14,8 +15,8 @@ interface SecondaryInformationHolder {
     fun getSecondaryInformation(): String
 }
 
-class RootNode(private val builds: List<Build>) : SimpleNode() {
-    override fun getChildren() = builds.sortedByDescending { it.id }.map { BuildNode(it) }.toTypedArray()
+class RootNode(project: Project?, private val builds: List<Build>) : SimpleNode(project) {
+    override fun getChildren() = builds.sortedByDescending { it.id }.map { BuildNode(project, it) }.toTypedArray()
 
     override fun update(data: PresentationData) {
         super.update(data)
@@ -23,11 +24,11 @@ class RootNode(private val builds: List<Build>) : SimpleNode() {
     }
 }
 
-class BuildNode(val build: Build) : SimpleNode(), SecondaryInformationHolder {
+class BuildNode(project: Project?, val build: Build) : SimpleNode(project), SecondaryInformationHolder {
     override fun getChildren() = listOf(
         GenericChildrenNode("Test Results") {
             runBlocking {
-                build.retrieveTestCaseExecutions()
+                build.retrieveTestCaseExecutions(project ?: error("Project not present."))
                     .groupBy { it.testSuiteName }
                     .map { entry -> TestGroupNode(entry.key, entry.value) }
                     .sortedBy { it.testCases.all(TestCaseExecution::passed) }

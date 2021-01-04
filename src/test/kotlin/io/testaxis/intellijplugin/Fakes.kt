@@ -9,6 +9,7 @@ import git4idea.GitCommit
 import io.testaxis.intellijplugin.models.Build
 import io.testaxis.intellijplugin.models.TestCaseExecution
 import io.testaxis.intellijplugin.models.TestCaseExecutionDetails
+import io.testaxis.intellijplugin.models.User
 import io.testaxis.intellijplugin.services.ApiService
 import io.testaxis.intellijplugin.services.GitService
 import io.testaxis.intellijplugin.services.WebSocketService
@@ -43,6 +44,18 @@ class FakeWebSocketService : WebSocketService {
 }
 
 open class FakeApiService : ApiService {
+    override suspend fun getUser(authenticationToken: String): User {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getProjects(authenticationToken: String): List<io.testaxis.intellijplugin.models.Project> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getProject(id: Int): io.testaxis.intellijplugin.models.Project {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun getBuilds(): List<Build> = listOf(fakeBuild(), fakeBuild(), fakeBuild())
 
     override suspend fun getTestCaseExecutions(build: Build): List<TestCaseExecution> =
@@ -50,6 +63,8 @@ open class FakeApiService : ApiService {
 
     override suspend fun getTestCaseExecutionDetails(testCaseExecution: TestCaseExecution): TestCaseExecutionDetails =
         fakeTestCaseExecutionDetails()
+
+    override fun withProject(project: Project): ApiService = this
 }
 
 class FakeGitService : GitService {

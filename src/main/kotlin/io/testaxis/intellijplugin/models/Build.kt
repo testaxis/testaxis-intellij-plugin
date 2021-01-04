@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.intellij.openapi.components.service
+import com.intellij.openapi.project.Project
 import com.intellij.ui.SimpleTextAttributes
 import io.testaxis.intellijplugin.diffForHumans
 import io.testaxis.intellijplugin.services.ApiService
@@ -28,8 +29,8 @@ data class Build(
 
     fun labelMaker() = BuildLabelMaker(this)
 
-    suspend fun retrieveTestCaseExecutions() =
-        service<ApiService>().getTestCaseExecutions(this).onEach { it.build = this }
+    suspend fun retrieveTestCaseExecutions(project: Project) =
+        service<ApiService>().withProject(project).getTestCaseExecutions(this).onEach { it.build = this }
 }
 
 class BuildLabelMaker(val build: Build) {
