@@ -1,6 +1,7 @@
 package io.testaxis.intellijplugin.toolwindow.builds.tree
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.project.Project
 import com.intellij.ui.SpeedSearchComparator
 import com.intellij.ui.TreeSpeedSearch
 import com.intellij.ui.tree.AsyncTreeModel
@@ -15,7 +16,7 @@ import javax.swing.tree.TreeModel
 import javax.swing.tree.TreePath
 import javax.swing.tree.TreeSelectionModel
 
-class BuildsTree : Disposable {
+class BuildsTree(val project: Project) : Disposable {
     val buildSelectedListeners = mutableListOf<(Build) -> Unit>()
     val testCaseSelectedListeners = mutableListOf<(TestCaseExecution) -> Unit>()
 
@@ -78,7 +79,7 @@ class BuildsTree : Disposable {
         }
 
     private fun createTreeModel(data: List<Build>): TreeModel {
-        val root = RootNode(data)
+        val root = RootNode(project, data)
         val treeModel = StructureTreeModel(SimpleTreeStructure.Impl(root), this)
         return AsyncTreeModel(treeModel, this)
     }

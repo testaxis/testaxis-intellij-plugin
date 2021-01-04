@@ -1,5 +1,6 @@
 package io.testaxis.intellijplugin.services
 
+import com.intellij.openapi.components.service
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockRequestHandleScope
@@ -12,13 +13,17 @@ import io.ktor.http.Url
 import io.ktor.http.fullPath
 import io.ktor.http.headersOf
 import io.ktor.http.hostWithPort
+import io.testaxis.intellijplugin.IntelliJPlatformTest
 import io.testaxis.intellijplugin.config
 import io.testaxis.intellijplugin.fakeBuild
 import io.testaxis.intellijplugin.fakeTestCaseExecution
 import io.testaxis.intellijplugin.models.Build
 import io.testaxis.intellijplugin.models.BuildStatus
+import io.testaxis.intellijplugin.models.Project
 import io.testaxis.intellijplugin.models.TestCaseExecution
 import io.testaxis.intellijplugin.models.TestCaseExecutionDetails
+import io.testaxis.intellijplugin.models.User
+import io.testaxis.intellijplugin.settings.SettingsState
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -26,7 +31,54 @@ import strikt.api.expectThat
 import strikt.assertions.hasSize
 import strikt.assertions.isEqualTo
 
-class TestAxisApiServiceTest {
+class TestAxisApiServiceTest : IntelliJPlatformTest() {
+    @Test
+    fun `a user can retrieve a correctly parsed user`() = runBlocking<Unit> {
+        val api = createTestAxisApiService(testAxisApiUrl("/user/me")) {
+            respondWithJson("user.single_success_200")
+        }
+
+        val project = api.getUser("jwt-abc-123")
+
+        expectThat(project) isEqualTo User(
+            id = 2,
+            name = "Casper Boone",
+            email = "testaxis@casperboone.nl",
+            imageUrl = "https://avatars2.githubusercontent.com/u/15815208?v=4"
+        )
+    }
+
+    @Test
+    fun `a user can retrieve correctly parsed projects`() = runBlocking<Unit> {
+        val api = createTestAxisApiService(testAxisApiUrl("/projects")) {
+            respondWithJson("projects.all_success_200")
+        }
+
+        val projects = api.getProjects("jwt-abc-123")
+
+        expectThat(projects).hasSize(4)
+        expectThat(projects[1]) isEqualTo Project(
+            id = 2,
+            name = "testaxis",
+            slug = "testaxis/testaxis-backend"
+        )
+    }
+
+    @Test
+    fun `a user can retrieve a correctly parsed project`() = runBlocking<Unit> {
+        val api = createTestAxisApiService(testAxisApiUrl("/projects/2")) {
+            respondWithJson("projects.single_success_200")
+        }
+
+        val project = api.getProject(2)
+
+        expectThat(project) isEqualTo Project(
+            id = 2,
+            name = "testaxis",
+            slug = "testaxis/testaxis-backend"
+        )
+    }
+
     @Test
     fun `a user can retrieve correctly parsed builds for a given project`() = runBlocking<Unit> {
         val api = createTestAxisApiService(testAxisApiUrl("/projects/1/builds")) {
@@ -97,8 +149,13 @@ class TestAxisApiServiceTest {
     fun createTestAxisApiService(
         requestedUrl: String,
         requestHandler: MockRequestHandleScope.(HttpRequestData) -> HttpResponseData
-    ) =
-        TestAxisApiService(
+    ): ApiService {
+        fixture.project.service<SettingsState>().apply {
+            authenticatonToken = "jwt-abc-123"
+            projectId = 1
+        }
+
+        return TestAxisApiService(
             HttpClient(MockEngine) {
                 defaultConfiguration()
 
@@ -111,7 +168,8 @@ class TestAxisApiServiceTest {
                     }
                 }
             }
-        )
+        ).withProject(fixture.project)
+    }
 
     private val Url.fullHost: String get() = if (port == protocol.defaultPort) host else hostWithPort
     private val HttpRequestData.fullUrl: String get() = "${url.protocol.name}://${url.fullHost}${url.fullPath}"

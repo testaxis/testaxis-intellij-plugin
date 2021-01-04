@@ -43,7 +43,7 @@ class BuildTest : IntelliJPlatformTest() {
         val build = fakeBuild(commit = "042")
 
         runBlocking {
-            expectThat(build.retrieveTestCaseExecutions()) hasSize 3
+            expectThat(build.retrieveTestCaseExecutions(fixture.project)) hasSize 3
         }
     }
 }

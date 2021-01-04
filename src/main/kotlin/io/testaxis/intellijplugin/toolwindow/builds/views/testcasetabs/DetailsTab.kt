@@ -82,7 +82,7 @@ class DetailsTab(val project: Project) : TestCaseTab, Disposable {
 
     override fun activate() {
         GlobalScope.launch {
-            with(testCaseExecution.details()) {
+            with(testCaseExecution.details(project)) {
                 runInEdt {
                     if (failureContent == null) {
                         failureContentConsole.component.isVisible = false

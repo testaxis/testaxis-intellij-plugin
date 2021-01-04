@@ -115,7 +115,7 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
             val changes = previousBuild?.let { testCaseExecution.build?.changes(project, previousBuild) }
 
             runBlocking {
-                val coveredFiles = testCaseExecution.details().coveredLines.map { (fileName, lines) ->
+                val coveredFiles = testCaseExecution.details(project).coveredLines.map { (fileName, lines) ->
                     CoveredFile(fileName, lines, changes?.changeForPartialFileName(fileName))
                 }
 

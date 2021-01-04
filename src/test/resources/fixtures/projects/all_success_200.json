@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "name": "org",
+    "slug": "org/project-name"
+  },
+  {
+    "id": 2,
+    "name": "testaxis",
+    "slug": "testaxis/testaxis-backend"
+  },
+  {
+    "id": 3,
+    "name": "org",
+    "slug": "org/projectname"
+  },
+  {
+    "id": 4,
+    "name": "testaxis",
+    "slug": "testaxis/coverage-per-test-gradle-plugin"
+  }
+]

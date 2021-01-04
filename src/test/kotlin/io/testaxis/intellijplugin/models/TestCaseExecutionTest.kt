@@ -24,7 +24,7 @@ class TestCaseExecutionTest : IntelliJPlatformTest() {
         val testCaseExecution = fakeTestCaseExecution()
 
         runBlocking {
-            expectThat(testCaseExecution.details()) isSameInstanceAs fakeDetails
+            expectThat(testCaseExecution.details(fixture.project)) isSameInstanceAs fakeDetails
         }
     }
 }

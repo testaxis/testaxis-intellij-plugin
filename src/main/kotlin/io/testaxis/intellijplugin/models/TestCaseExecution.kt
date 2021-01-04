@@ -24,9 +24,9 @@ data class TestCaseExecution(
 ) {
     private lateinit var cachedDetails: TestCaseExecutionDetails
 
-    suspend fun details(): TestCaseExecutionDetails {
+    suspend fun details(project: Project): TestCaseExecutionDetails {
         if (!this::cachedDetails.isInitialized) {
-            cachedDetails = service<ApiService>().getTestCaseExecutionDetails(this)
+            cachedDetails = service<ApiService>().withProject(project).getTestCaseExecutionDetails(this)
         }
         return cachedDetails
     }
