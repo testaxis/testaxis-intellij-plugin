@@ -27,6 +27,7 @@ import java.awt.event.ActionListener
 import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.JLabel
+import javax.swing.JScrollPane
 import javax.swing.ListSelectionModel
 
 private const val SPLITTER_PROPORTION_ONE_THIRD = .33f
@@ -54,24 +55,26 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
     private var buildHistory: List<Build> = emptyList()
 
     init {
-        coveredFilesList.addListSelectionListener {
-            diffInformationPanel.isVisible = false
-            diffInformationLabel.text = ""
+        coveredFilesList.addListSelectionListener { showCoveredFile(coveredFilesList.selectedValue) }
+    }
 
-            if (coveredFilesList.selectedValue != null) {
-                editor.showFile(coveredFilesList.selectedValue.getFile(project))
-                coveredFilesList.selectedValue.lines.forEach { editor.highlightLine(it) }
+    private fun showCoveredFile(coveredFile: CoveredFile?) {
+        diffInformationPanel.isVisible = false
+        diffInformationLabel.text = ""
 
-                coveredFilesList.selectedValue.vcsChange?.let { change ->
-                    if (change.type == Change.Type.MODIFICATION) {
-                        diffInformationPanel.isVisible = true
-                        showFullDiffButton.replaceActionListener { project.service<GitService>().showDiff(change) }
+        coveredFile ?: return
 
-                        change.textualDiff().run {
-                            highlightChanges()
-                            giveOptionalDeletionsWarning()
-                        }
-                    }
+        editor.showFile(coveredFile.getFile(project))
+        coveredFile.lines.forEach { editor.highlightLine(it) }
+
+        coveredFile.vcsChange?.let { change ->
+            if (change.type == Change.Type.MODIFICATION) {
+                diffInformationPanel.isVisible = true
+                showFullDiffButton.replaceActionListener { project.service<GitService>().showDiff(change) }
+
+                change.textualDiff().run {
+                    highlightChanges()
+                    giveOptionalDeletionsWarning()
                 }
             }
         }
@@ -79,13 +82,14 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
 
     override fun activate() {
         coveredFilesList.selectedIndex = 0
+        showCoveredFile(coveredFilesList.selectedValue)
     }
 
     override fun getComponent(): JComponent = panel.apply {
         add(
             OnePixelSplitter(SPLITTER_PROPORTION_ONE_THIRD).apply {
                 firstComponent = BorderLayoutPanel().apply {
-                    add(coveredFilesList)
+                    add(JScrollPane(coveredFilesList))
                 }
 
                 secondComponent = BorderLayoutPanel().apply {

@@ -18,7 +18,7 @@ class TestCodeTab(val project: Project) : TestCaseTab, Disposable {
     private val testCaseCodeEditor = TestCodeEditorField(project)
 
     override fun activate() {
-        testCaseExecution.getMethod(project)?.let { method ->
+        testCaseExecution.getMethod(project).let { method ->
             testCaseCodeEditor.showTestMethod(method)
             testCaseCodeEditor.highlightElement(method)
         }

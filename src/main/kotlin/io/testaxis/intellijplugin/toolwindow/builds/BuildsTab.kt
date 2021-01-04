@@ -1,6 +1,9 @@
 package io.testaxis.intellijplugin.toolwindow.builds
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.ActionPlaces
+import com.intellij.openapi.actionSystem.DefaultActionGroup
 import com.intellij.openapi.components.service
 import com.intellij.openapi.progress.runBackgroundableTask
 import com.intellij.openapi.project.Project
@@ -11,6 +14,8 @@ import io.testaxis.intellijplugin.messages.MessageConfiguration
 import io.testaxis.intellijplugin.services.ApiService
 import io.testaxis.intellijplugin.services.GitService
 import io.testaxis.intellijplugin.services.WebSocketService
+import io.testaxis.intellijplugin.toolwindow.builds.filters.BranchFilter
+import io.testaxis.intellijplugin.toolwindow.builds.filters.StatusFilter
 import io.testaxis.intellijplugin.toolwindow.builds.tree.BuildsTree
 import io.testaxis.intellijplugin.toolwindow.builds.views.BuildDetailsRightView
 import io.testaxis.intellijplugin.toolwindow.builds.views.BuildsUpdateHandler
@@ -21,28 +26,19 @@ import kotlinx.coroutines.runBlocking
 import java.awt.CardLayout
 import javax.swing.JComponent
 
-private class RightViewStateManager(vararg val views: RightView) {
-    init {
-        hideAll()
-    }
-
-    fun hideAll() = views.forEach { it.hide() }
-
-    inline fun <reified T : RightView> showAndGet(): T = views.filterIsInstance<T>().first().also {
-        hideAll()
-        it.show()
-    }
-
-    fun getPanels() = views.map { it.getPanel() }
-}
-
-const val SPLITTER_PROPORTION_ONE_THIRD = .33f
+private const val SPLITTER_PROPORTION_ONE_THIRD = .33f
 
 class BuildsTab(val project: Project) : Disposable {
     private val stateManager = RightViewStateManager(
         WelcomeRightView(),
         BuildDetailsRightView(project),
         TestCaseDetailsRightView(project)
+    )
+
+    private val branchFilter = BranchFilter(project) { updateBuilds() }
+    private val filters = listOf(
+        branchFilter,
+        StatusFilter { updateBuilds() }
     )
 
     private val buildsTree = BuildsTree().apply {
@@ -75,6 +71,7 @@ class BuildsTab(val project: Project) : Disposable {
         val splitter = OnePixelSplitter(SPLITTER_PROPORTION_ONE_THIRD)
 
         splitter.firstComponent = BorderLayoutPanel().apply {
+            addToTop(createToolbar())
             add(createBuildsTreePanel())
         }
 
@@ -90,18 +87,27 @@ class BuildsTab(val project: Project) : Disposable {
         return splitter
     }
 
+    private fun createToolbar(): JComponent {
+        val mainGroup = DefaultActionGroup().apply {
+            filters.forEach { add(it.actionComponent) }
+        }
+        return ActionManager.getInstance().createActionToolbar(ActionPlaces.TOOLBAR, mainGroup, true).component
+    }
+
     private fun createBuildsTreePanel() =
         ToolbarDecorator.createDecorator(buildsTree.render()).createPanel()
 
-    private fun updateBuilds() = runBackgroundableTask("Retrieving builds", project, cancellable = false) {
+    private fun updateBuilds(): Unit = runBackgroundableTask("Retrieving builds", project, cancellable = false) {
         runBlocking {
             val builds = service<ApiService>().getBuilds()
 
-            builds.forEach {
+            builds.filter { it.commitMessage == null }.forEach {
                 project.service<GitService>().retrieveCommitMessage(it.commit, ignoreErrors = true)
                     ?.let { message -> it.commitMessage = message }
             }
-            buildsTree.updateData(builds)
+            buildsTree.updateData(builds.filter { build -> filters.all { it.filter(build) } })
+
+            branchFilter.updateBranches(builds.map { it.branch }.distinct())
 
             stateManager.views.filterIsInstance<BuildsUpdateHandler>().forEach { it.handleNewBuilds(builds) }
         }
@@ -110,4 +116,19 @@ class BuildsTab(val project: Project) : Disposable {
     override fun dispose() {
         TODO("Not yet implemented")
     }
+}
+
+private class RightViewStateManager(vararg val views: RightView) {
+    init {
+        hideAll()
+    }
+
+    fun hideAll() = views.forEach { it.hide() }
+
+    inline fun <reified T : RightView> showAndGet(): T = views.filterIsInstance<T>().first().also {
+        hideAll()
+        it.show()
+    }
+
+    fun getPanels() = views.map { it.getPanel() }
 }
