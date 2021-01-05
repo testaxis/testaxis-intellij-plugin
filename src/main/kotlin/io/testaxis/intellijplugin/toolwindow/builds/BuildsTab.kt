@@ -14,7 +14,6 @@ import com.intellij.util.ui.components.BorderLayoutPanel
 import io.testaxis.intellijplugin.messages.MessageConfiguration
 import io.testaxis.intellijplugin.services.ApiService
 import io.testaxis.intellijplugin.services.GitService
-import io.testaxis.intellijplugin.services.WebSocketService
 import io.testaxis.intellijplugin.toolwindow.builds.filters.BranchFilter
 import io.testaxis.intellijplugin.toolwindow.builds.filters.StatusFilter
 import io.testaxis.intellijplugin.toolwindow.builds.tree.BuildsTree
