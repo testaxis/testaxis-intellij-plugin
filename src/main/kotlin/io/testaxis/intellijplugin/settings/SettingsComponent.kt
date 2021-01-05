@@ -9,8 +9,10 @@ import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBList
 import com.intellij.ui.components.JBTextArea
 import com.intellij.ui.components.Label
+import com.intellij.ui.components.htmlComponent
 import com.intellij.ui.layout.GrowPolicy
 import com.intellij.ui.layout.panel
+import io.testaxis.intellijplugin.config
 import io.testaxis.intellijplugin.services.ApiService
 import io.testaxis.intellijplugin.services.UserNotAuthenticatedException
 import kotlinx.coroutines.runBlocking
@@ -40,6 +42,12 @@ class SettingsComponent(val project: Project) {
 
     val panel = panel {
         titledRow("Authentication Token") {
+            row {
+                htmlComponent(
+                    "Login through <a href=\"${config(config.testaxis.auth.githubUrl)}\">GitHub</a> " +
+                        "and paste your TestAxis Authentication Token below."
+                )()
+            }
             row {
                 authenticationTokenField().focused().growPolicy(GrowPolicy.MEDIUM_TEXT)
                 cell(isVerticalFlow = true) {
