@@ -4,11 +4,10 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationType
 import com.intellij.notification.Notifications
 import com.intellij.openapi.actionSystem.AnAction
-import io.testaxis.intellijplugin.FakeWebSocketService
-import io.testaxis.intellijplugin.Fakes
 import io.testaxis.intellijplugin.IntelliJPlatformTest
 import io.testaxis.intellijplugin.actions.InspectBuildAction
 import io.testaxis.intellijplugin.fakeBuild
+import io.testaxis.intellijplugin.messages.MessageConfiguration
 import io.testaxis.intellijplugin.models.Build
 import io.testaxis.intellijplugin.models.BuildStatus
 import org.junit.jupiter.api.BeforeEach
@@ -21,11 +20,7 @@ import strikt.assertions.isEqualTo
 import strikt.assertions.isNotNull
 
 class BuildNotifierTest : IntelliJPlatformTest() {
-    private val webSocketService = FakeWebSocketService()
-
     private var notification: Notification? = null
-
-    override fun getFakes() = Fakes(webSocketService = webSocketService)
 
     @BeforeEach
     override fun setUp() {
@@ -43,6 +38,10 @@ class BuildNotifierTest : IntelliJPlatformTest() {
         )
     }
 
+    private fun reportNewBuild(build: Build) {
+        fixture.project.messageBus.syncPublisher(MessageConfiguration.BUILD_FINISHED_TOPIC).notify(build)
+    }
+
     private fun getIncomingNotificationOrFail(): Notification {
         expectThat(notification).isNotNull()
 
@@ -52,7 +51,7 @@ class BuildNotifierTest : IntelliJPlatformTest() {
     @Test
     fun `it notifies the developer of a passing build`() {
         val newBuild = fakeBuild(status = BuildStatus.SUCCESS)
-        webSocketService.reportNewBuild(newBuild)
+        reportNewBuild(newBuild)
 
         with(getIncomingNotificationOrFail()) {
             expectThat(groupId) isEqualTo BuildNotifier.SUCCESS_NOTIFICATION_GROUP_ID
@@ -67,7 +66,7 @@ class BuildNotifierTest : IntelliJPlatformTest() {
     @Test
     fun `it notifies the developer of a failed build`() {
         val newBuild = fakeBuild(status = BuildStatus.BUILD_FAILED)
-        webSocketService.reportNewBuild(newBuild)
+        reportNewBuild(newBuild)
 
         with(getIncomingNotificationOrFail()) {
             expectThat(groupId) isEqualTo BuildNotifier.FAILED_NOTIFICATION_GROUP_ID
@@ -82,7 +81,7 @@ class BuildNotifierTest : IntelliJPlatformTest() {
     @Test
     fun `it notifies the developer of a build with failed tests`() {
         val newBuild = fakeBuild(status = BuildStatus.TESTS_FAILED)
-        webSocketService.reportNewBuild(newBuild)
+        reportNewBuild(newBuild)
 
         with(getIncomingNotificationOrFail()) {
             expectThat(groupId) isEqualTo BuildNotifier.FAILED_NOTIFICATION_GROUP_ID
@@ -97,7 +96,7 @@ class BuildNotifierTest : IntelliJPlatformTest() {
     @Test
     fun `it notifies the developer of a build with an unknown status`() {
         val newBuild = fakeBuild(status = BuildStatus.UNKNOWN)
-        webSocketService.reportNewBuild(newBuild)
+        reportNewBuild(newBuild)
 
         with(getIncomingNotificationOrFail()) {
             expectThat(groupId) isEqualTo BuildNotifier.SUCCESS_NOTIFICATION_GROUP_ID

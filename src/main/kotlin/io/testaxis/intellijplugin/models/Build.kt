@@ -14,6 +14,7 @@ import java.util.Date
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy::class)
 data class Build(
     val id: Int,
+    val projectId: Int,
     val status: BuildStatus,
     val branch: String,
     val commit: String,

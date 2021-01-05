@@ -35,6 +35,7 @@ fun IdeaTestFixture.tearDownInEdt() {
 
 fun fakeBuild(
     id: Int = 1,
+    projectId: Int = 0,
     status: BuildStatus = BuildStatus.SUCCESS,
     branch: String = "new-feature",
     commit: String = "042edd33883d3670d131027cbc6d0543274c6152",
@@ -43,7 +44,7 @@ fun fakeBuild(
     serviceBuild: String? = null,
     serviceBuildUrl: String? = null,
     createdAt: Date = aFewSecondsAgo()
-) = Build(id, status, branch, commit, pr, service, serviceBuild, serviceBuildUrl, createdAt)
+) = Build(id, projectId, status, branch, commit, pr, service, serviceBuild, serviceBuildUrl, createdAt)
 
 fun fakeTestCaseExecution(
     id: Int = 1,

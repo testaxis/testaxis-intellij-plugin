@@ -30,6 +30,10 @@ object config {
             val url by stringType
         }
 
+        object auth : PropertyGroup() {
+            val githubUrl by stringType
+        }
+
         object ws : PropertyGroup() {
             val host by stringType
             val port by intType

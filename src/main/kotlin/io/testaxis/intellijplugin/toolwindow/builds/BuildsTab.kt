@@ -4,6 +4,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.DefaultActionGroup
+import com.intellij.openapi.application.runInEdt
 import com.intellij.openapi.components.service
 import com.intellij.openapi.progress.runBackgroundableTask
 import com.intellij.openapi.project.Project
@@ -13,7 +14,6 @@ import com.intellij.util.ui.components.BorderLayoutPanel
 import io.testaxis.intellijplugin.messages.MessageConfiguration
 import io.testaxis.intellijplugin.services.ApiService
 import io.testaxis.intellijplugin.services.GitService
-import io.testaxis.intellijplugin.services.WebSocketService
 import io.testaxis.intellijplugin.toolwindow.builds.filters.BranchFilter
 import io.testaxis.intellijplugin.toolwindow.builds.filters.StatusFilter
 import io.testaxis.intellijplugin.toolwindow.builds.tree.BuildsTree
@@ -51,9 +51,10 @@ class BuildsTab(val project: Project) : Disposable {
     }
 
     init {
-        project.service<WebSocketService>().subscribeToBuilds {
-            updateBuilds()
-        }
+        project.messageBus.connect().subscribe(
+            MessageConfiguration.BUILD_FINISHED_TOPIC,
+            MessageConfiguration.BuildNotifier { updateBuilds() }
+        )
 
         project.messageBus.connect().subscribe(
             MessageConfiguration.BUILD_SHOULD_BE_SELECTED_TOPIC,
@@ -110,7 +111,10 @@ class BuildsTab(val project: Project) : Disposable {
                 project.service<GitService>().retrieveCommitMessage(it.commit, ignoreErrors = true)
                     ?.let { message -> it.commitMessage = message }
             }
-            buildsTree.updateData(builds.filter { build -> filters.all { it.filter(build) } })
+
+            runInEdt {
+                buildsTree.updateData(builds.filter { build -> filters.all { it.filter(build) } })
+            }
 
             branchFilter.updateBranches(builds.map { it.branch }.distinct())
 
