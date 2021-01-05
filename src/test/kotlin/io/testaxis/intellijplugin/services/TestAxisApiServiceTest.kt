@@ -90,6 +90,7 @@ class TestAxisApiServiceTest : IntelliJPlatformTest() {
         expectThat(builds).hasSize(4)
         expectThat(builds[2]) isEqualTo Build(
             id = 56,
+            projectId = 2,
             status = BuildStatus.SUCCESS,
             branch = "upload-build-status",
             commit = "70c09adc63843c085cc10fe6bb504874c3e219bd",

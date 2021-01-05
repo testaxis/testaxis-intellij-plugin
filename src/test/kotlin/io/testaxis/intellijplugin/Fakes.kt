@@ -33,14 +33,6 @@ fun Project.registerFakes(fakes: Fakes) {
 class FakeWebSocketService : WebSocketService {
     override val client: WebsocketClient
         get() = TODO("Not yet implemented")
-
-    private val buildHandlers = mutableListOf<(Build) -> Unit>()
-
-    override fun subscribeToBuilds(handler: (Build) -> Unit) {
-        buildHandlers.add(handler)
-    }
-
-    fun reportNewBuild(build: Build) = buildHandlers.forEach { it(build) }
 }
 
 open class FakeApiService : ApiService {

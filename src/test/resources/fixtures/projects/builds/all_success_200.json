@@ -1,6 +1,7 @@
 [
   {
     "id": 54,
+    "project_id": 2,
     "status": "success",
     "branch": "upload-build-status",
     "commit": "f25ff041b648e4ab286e702818eda80885e70c61",
@@ -15,6 +16,7 @@
   },
   {
     "id": 55,
+    "project_id": 2,
     "status": "success",
     "branch": "upload-build-status",
     "commit": "dbbd16c6aadf647747b1bd800ed0b6b7253a8459",
@@ -29,6 +31,7 @@
   },
   {
     "id": 56,
+    "project_id": 2,
     "status": "success",
     "branch": "upload-build-status",
     "commit": "70c09adc63843c085cc10fe6bb504874c3e219bd",
@@ -43,6 +46,7 @@
   },
   {
     "id": 57,
+    "project_id": 2,
     "status": "success",
     "branch": "master",
     "commit": "101ee6ad66e9a6a4218629ba6b496ef853cbd403",
