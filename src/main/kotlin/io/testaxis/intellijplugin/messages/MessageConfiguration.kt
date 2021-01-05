@@ -6,6 +6,7 @@ import io.testaxis.intellijplugin.settings.SettingsState
 
 class MessageConfiguration {
     companion object {
+        val BUILD_FINISHED_TOPIC = Topic.create("build-finished", BuildNotifier::class.java)
         val BUILD_SHOULD_BE_SELECTED_TOPIC = Topic.create("build-should-be-selected", BuildNotifier::class.java)
         val API_SETTINGS_UPDATED_TOPIC = Topic.create("api-settings-updated", ApiSettingsNotifier::class.java)
     }

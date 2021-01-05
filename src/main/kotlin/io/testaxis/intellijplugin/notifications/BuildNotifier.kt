@@ -4,12 +4,11 @@ import com.intellij.notification.Notification
 import com.intellij.notification.NotificationDisplayType
 import com.intellij.notification.NotificationGroup
 import com.intellij.notification.NotificationType
-import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import io.testaxis.intellijplugin.actions.InspectBuildAction
+import io.testaxis.intellijplugin.messages.MessageConfiguration
 import io.testaxis.intellijplugin.models.Build
 import io.testaxis.intellijplugin.models.BuildStatus
-import io.testaxis.intellijplugin.services.WebSocketService
 
 class BuildNotifier(val project: Project) {
     companion object {
@@ -28,14 +27,17 @@ class BuildNotifier(val project: Project) {
     )
 
     fun listenForNewBuilds() {
-        project.service<WebSocketService>().subscribeToBuilds {
-            when (it.status) {
-                BuildStatus.SUCCESS -> notify(it, "The build passed.")
-                BuildStatus.BUILD_FAILED -> notifyWarning(it, "The build failed (not due to failing tests).")
-                BuildStatus.TESTS_FAILED -> notifyError(it, "The build failed due to failing tests.")
-                BuildStatus.UNKNOWN -> notify(it, "The status of this build is unknown.")
+        project.messageBus.connect().subscribe(
+            MessageConfiguration.BUILD_FINISHED_TOPIC,
+            MessageConfiguration.BuildNotifier {
+                when (it.status) {
+                    BuildStatus.SUCCESS -> notify(it, "The build passed.")
+                    BuildStatus.BUILD_FAILED -> notifyWarning(it, "The build failed (not due to failing tests).")
+                    BuildStatus.TESTS_FAILED -> notifyError(it, "The build failed due to failing tests.")
+                    BuildStatus.UNKNOWN -> notify(it, "The status of this build is unknown.")
+                }
             }
-        }
+        )
     }
 
     private fun notify(build: Build, message: String) =
