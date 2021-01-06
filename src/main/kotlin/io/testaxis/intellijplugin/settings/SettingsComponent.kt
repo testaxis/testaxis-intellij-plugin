@@ -15,8 +15,10 @@ import com.intellij.ui.layout.panel
 import io.testaxis.intellijplugin.config
 import io.testaxis.intellijplugin.services.ApiService
 import io.testaxis.intellijplugin.services.UserNotAuthenticatedException
+import io.testaxis.intellijplugin.toolwindow.horizontal
 import kotlinx.coroutines.runBlocking
 import javax.swing.BorderFactory
+import javax.swing.JButton
 import javax.swing.ListSelectionModel
 import io.testaxis.intellijplugin.models.Project as TestAxisProject
 
@@ -43,8 +45,32 @@ class SettingsComponent(val project: Project) {
     val panel = panel {
         titledRow("Authentication Token") {
             row {
+                component(
+                    horizontal(
+                        JButton("Login with Email").apply {
+                            addActionListener {
+                                val dialog = LoginDialog(project)
+                                if (dialog.showAndGet() && dialog.authenticationToken != null) {
+                                    authenticationTokenField.text = dialog.authenticationToken
+                                    verifyAuthenticationToken()
+                                }
+                            }
+                        },
+                        JButton("Register").apply {
+                            addActionListener {
+                                val dialog = RegistrationDialog(project)
+                                if (dialog.showAndGet() && dialog.authenticationToken != null) {
+                                    authenticationTokenField.text = dialog.authenticationToken
+                                    verifyAuthenticationToken()
+                                }
+                            }
+                        }
+                    )
+                )
+            }
+            row {
                 htmlComponent(
-                    "Login through <a href=\"${config(config.testaxis.auth.githubUrl)}\">GitHub</a> " +
+                    "Or login through <a href=\"${config(config.testaxis.auth.githubUrl)}\">GitHub</a> " +
                         "and paste your TestAxis Authentication Token below."
                 )()
             }

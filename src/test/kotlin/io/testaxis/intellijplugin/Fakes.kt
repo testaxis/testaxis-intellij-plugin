@@ -11,6 +11,7 @@ import io.testaxis.intellijplugin.models.TestCaseExecution
 import io.testaxis.intellijplugin.models.TestCaseExecutionDetails
 import io.testaxis.intellijplugin.models.User
 import io.testaxis.intellijplugin.services.ApiService
+import io.testaxis.intellijplugin.services.AuthResponse
 import io.testaxis.intellijplugin.services.GitService
 import io.testaxis.intellijplugin.services.WebSocketService
 import io.testaxis.intellijplugin.vcs.ChangesList
@@ -36,6 +37,14 @@ class FakeWebSocketService : WebSocketService {
 }
 
 open class FakeApiService : ApiService {
+    override suspend fun login(email: String, password: String): AuthResponse {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun registerUser(name: String, email: String, password: String): AuthResponse {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun getUser(authenticationToken: String): User {
         TODO("Not yet implemented")
     }

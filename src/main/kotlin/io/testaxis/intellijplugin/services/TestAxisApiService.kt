@@ -12,6 +12,9 @@ import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.get
 import io.ktor.client.request.header
+import io.ktor.client.request.post
+import io.ktor.http.ContentType
+import io.ktor.http.content.TextContent
 import io.testaxis.intellijplugin.config
 import io.testaxis.intellijplugin.createObjectMapper
 import io.testaxis.intellijplugin.models.Build
@@ -22,6 +25,10 @@ import io.testaxis.intellijplugin.settings.SettingsState
 import io.testaxis.intellijplugin.models.Project as TestAxisProject
 
 interface ApiService {
+    suspend fun login(email: String, password: String): AuthResponse
+
+    suspend fun registerUser(name: String, email: String, password: String): AuthResponse
+
     suspend fun getUser(authenticationToken: String): User
 
     suspend fun getProjects(authenticationToken: String): List<TestAxisProject>
@@ -37,10 +44,35 @@ interface ApiService {
     fun withProject(project: Project): ApiService
 }
 
+@Suppress("TooManyFunctions")
 class TestAxisApiService @NonInjectable constructor(val client: HttpClient = defaultClient()) : ApiService, Disposable {
     private lateinit var project: Project
 
     private fun testAxisApiUrl(url: String) = config(config.testaxis.api.url) + url
+
+    override suspend fun login(email: String, password: String): AuthResponse = catch {
+        client.post(testAxisApiUrl("/auth/login")) {
+            body = TextContent(
+                createObjectMapper().writeValueAsString(mapOf("email" to email, "password" to password)),
+                contentType = ContentType.Application.Json
+            )
+        }
+    }
+
+    override suspend fun registerUser(name: String, email: String, password: String): AuthResponse = catch {
+        client.post(testAxisApiUrl("/auth/register")) {
+            body = TextContent(
+                createObjectMapper().writeValueAsString(
+                    mapOf(
+                        "name" to name,
+                        "email" to email,
+                        "password" to password
+                    )
+                ),
+                contentType = ContentType.Application.Json
+            )
+        }
+    }
 
     override suspend fun getUser(authenticationToken: String): User =
         catch { client.get(testAxisApiUrl("/user/me")) { bearerAuthorization(authenticationToken) } }
@@ -109,6 +141,9 @@ private suspend fun <R> catch(action: suspend () -> R) =
         if (exception.response.status.value == 401) {
             throw UserNotAuthenticatedException(exception)
         }
+        if (exception.response.status.value == 422) {
+            throw ValidationException(exception)
+        }
         throw exception
     }
 
@@ -116,3 +151,8 @@ class SettingsNotInitializedException : Exception("There is no project selected 
 
 class UserNotAuthenticatedException(exception: ClientRequestException) :
     Exception("The user is not (properly) authenticated.", exception)
+
+class ValidationException(exception: ClientRequestException) :
+    Exception("A validation error occurred.", exception)
+
+data class AuthResponse(val accessToken: String, val tokenType: String)
