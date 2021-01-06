@@ -1,8 +1,23 @@
-# testaxis-intellij-plugin
+<p align="center">
+    <img src=".github/readme/logo.svg" height="125"/>
+    <br />
+</p>
 
-![Build](https://github.com/testaxis/testaxis-intellij-plugin/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
+<h1 align="center">
+    TestAxis: IntelliJ Plugin
+</h1>
+
+<p align="center">
+    <a href="https://github.com/testaxis/testaxis-intellij-plugin/actions?query=workflow%3ABuild">
+        <img src="https://img.shields.io/github/workflow/status/testaxis/testaxis-intellij-plugin/Build?style=for-the-badge" />
+    </a>
+    <a href="https://plugins.jetbrains.com/plugin/PLUGIN_ID">
+        <img src="https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg?style=for-the-badge" />
+    </a>
+    <a href="https://plugins.jetbrains.com/plugin/PLUGIN_ID">
+        <img src="https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg?style=for-the-badge" />
+    </a>
+</p>
 
 ## Template ToDo list
 - [x] Create a new [IntelliJ Platform Plugin Template][template] project.
