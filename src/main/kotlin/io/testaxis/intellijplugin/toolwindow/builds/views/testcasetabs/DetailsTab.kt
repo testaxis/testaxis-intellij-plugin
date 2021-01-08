@@ -6,9 +6,11 @@ import com.intellij.icons.AllIcons
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.runInEdt
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.JBColor
+import com.intellij.ui.LightColors
 import com.intellij.ui.components.Label
 import com.intellij.ui.components.Link
 import io.testaxis.intellijplugin.diffForHumans
@@ -44,17 +46,20 @@ class DetailsTab(val project: Project) : TestCaseTab, Disposable {
             true
         ).console
 
+    private val testHealthPanel = vertical()
+
     private val panel = borderLayoutPanel {
         addToTop(
             borderLayoutPanel(10) {
-                addToLeft(CirclePanel(iconLabel, background = JBColor.PanelBackground.brighter()))
+                addToLeft(vertical(CirclePanel(iconLabel, background = JBColor.PanelBackground.brighter())))
                 add(
                     vertical(
                         horizontal(
                             nameLabel,
-                            Link("Open Test") { testCaseExecution.getMethod(project)?.navigate(true) }
+                            Link("Open Test") { testCaseExecution.navigate() }
                         ),
-                        horizontal(testSuiteNameLabel)
+                        horizontal(testSuiteNameLabel),
+                        horizontal(testHealthPanel)
                     )
                 )
                 addToRight(vertical(timeLabel.apply { horizontalAlignment = SwingConstants.RIGHT }, createdAtLabel))
@@ -78,15 +83,17 @@ class DetailsTab(val project: Project) : TestCaseTab, Disposable {
             createdAtLabel.text = createdAt.diffForHumans()
             createdAtLabel.toolTipText = createdAt.toString()
         }
+
+        showTestHealthWarnings()
     }
 
     override fun activate() {
+        failureContentConsole.component.isVisible = false
+
         GlobalScope.launch {
             with(testCaseExecution.details(project)) {
                 runInEdt {
-                    if (failureContent == null) {
-                        failureContentConsole.component.isVisible = false
-                    } else {
+                    if (failureContent != null) {
                         failureContentConsole.component.isVisible = true
                         failureContentConsole.clear()
                         failureContentConsole.print(failureContent, ConsoleViewContentType.ERROR_OUTPUT)
@@ -95,6 +102,44 @@ class DetailsTab(val project: Project) : TestCaseTab, Disposable {
             }
         }
     }
+
+    private fun showTestHealthWarnings() {
+        testHealthPanel.removeAll()
+
+        if (testCaseExecution.name.contains("cannot")) {
+            addTestHealthWarning("This is a negative test, good job!")
+        }
+        if ((testCaseExecution.time * 1000) > 300) {
+            addTestHealthWarning("This test took a long time (${timeLabel.text}) to run. The performance of your test suite may be improved by optimizing this test.")
+        }
+    }
+
+    private fun addTestHealthWarning(message: String) {
+        val panel =
+            borderLayoutPanel {
+                add(
+                    borderLayoutPanel {
+                        add(Label(message).apply { icon = AllIcons.General.Warning })
+                    }.apply {
+                        border = EmptyBorder(5, 10, 5, 10)
+                        background = LightColors.YELLOW
+                    }
+                )
+            }.apply {
+                border = EmptyBorder(10, 0, 0, 0)
+            }
+
+        testHealthPanel.add(panel)
+    }
+
+    private fun TestCaseExecution.navigate() =
+        getMethod(project)?.navigate(true)
+            ?: Messages.showMessageDialog(
+                project,
+                "Please make sure that this test is present in your locally checked out code base.",
+                "Test case could not be found",
+                Messages.getErrorIcon()
+            )
 
     override fun dispose() {
         failureContentConsole.dispose()
