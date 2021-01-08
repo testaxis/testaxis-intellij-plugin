@@ -4,6 +4,7 @@ import com.intellij.openapi.vcs.changes.Change
 import com.intellij.ui.JBColor
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
+import io.testaxis.intellijplugin.vcs.CoveredFile
 import java.awt.Color
 import java.awt.Component
 import java.awt.Font
@@ -12,10 +13,10 @@ import javax.swing.JLabel
 import javax.swing.JList
 import javax.swing.ListCellRenderer
 
-internal class CoveredFileCellRenderer : BorderLayoutPanel(), ListCellRenderer<CodeUnderTestTab.CoveredFile> {
+internal class CoveredFileCellRenderer : BorderLayoutPanel(), ListCellRenderer<CoveredFile> {
     override fun getListCellRendererComponent(
-        list: JList<out CodeUnderTestTab.CoveredFile>,
-        coveredFile: CodeUnderTestTab.CoveredFile,
+        list: JList<out CoveredFile>,
+        coveredFile: CoveredFile,
         index: Int,
         selected: Boolean,
         hasFocus: Boolean
@@ -34,7 +35,7 @@ internal class CoveredFileCellRenderer : BorderLayoutPanel(), ListCellRenderer<C
         return this
     }
 
-    private fun createTopRow(coveredFile: CodeUnderTestTab.CoveredFile) = BorderLayoutPanel().also { panel ->
+    private fun createTopRow(coveredFile: CoveredFile) = BorderLayoutPanel().also { panel ->
         panel.background = this.background
         panel.foreground = this.foreground
 
@@ -48,7 +49,7 @@ internal class CoveredFileCellRenderer : BorderLayoutPanel(), ListCellRenderer<C
         coveredFile.vcsChange?.type?.let { panel.addToRight(createChangeLabel(it)) }
     }
 
-    private fun createBottomRow(coveredFile: CodeUnderTestTab.CoveredFile) =
+    private fun createBottomRow(coveredFile: CoveredFile) =
         JLabel(coveredFile.fileName).also {
             it.foreground = this.foreground?.darker()
         }
@@ -64,14 +65,14 @@ internal class CoveredFileCellRenderer : BorderLayoutPanel(), ListCellRenderer<C
         )
     }
 
-    private fun determineBackgroundColor(list: JList<out CodeUnderTestTab.CoveredFile>, selected: Boolean) =
+    private fun determineBackgroundColor(list: JList<out CoveredFile>, selected: Boolean) =
         if (UIUtil.isUnderWin10LookAndFeel()) {
             if (selected) list.selectionBackground else list.background
         } else {
             if (selected) list.selectionBackground else null
         }
 
-    private fun determineForegroundColor(list: JList<out CodeUnderTestTab.CoveredFile>, selected: Boolean) =
+    private fun determineForegroundColor(list: JList<out CoveredFile>, selected: Boolean) =
         if (!isEnabled) UIUtil.getLabelDisabledForeground() else {
             if (selected) list.selectionForeground else list.foreground
         }
