@@ -14,10 +14,13 @@ import com.intellij.ui.LightColors
 import com.intellij.ui.components.Label
 import com.intellij.ui.components.Link
 import io.testaxis.intellijplugin.diffForHumans
+import io.testaxis.intellijplugin.healthwarnings.investigateHealth
+import io.testaxis.intellijplugin.models.Build
 import io.testaxis.intellijplugin.models.TestCaseExecution
 import io.testaxis.intellijplugin.toolwindow.CirclePanel
 import io.testaxis.intellijplugin.toolwindow.Icons
 import io.testaxis.intellijplugin.toolwindow.borderLayoutPanel
+import io.testaxis.intellijplugin.toolwindow.builds.views.BuildsUpdateHandler
 import io.testaxis.intellijplugin.toolwindow.horizontal
 import io.testaxis.intellijplugin.toolwindow.vertical
 import kotlinx.coroutines.GlobalScope
@@ -27,7 +30,7 @@ import javax.swing.JLabel
 import javax.swing.SwingConstants
 import javax.swing.border.EmptyBorder
 
-class DetailsTab(val project: Project) : TestCaseTab, Disposable {
+class DetailsTab(val project: Project) : TestCaseTab, Disposable, BuildsUpdateHandler {
     override val tabName = "Execution Details"
 
     private lateinit var testCaseExecution: TestCaseExecution
@@ -37,6 +40,8 @@ class DetailsTab(val project: Project) : TestCaseTab, Disposable {
     private val testSuiteNameLabel = Label("").apply { foreground = foreground.darker() }
     private val timeLabel = Label("").apply { icon = Icons.Clock }
     private val createdAtLabel = Label("").apply { icon = Icons.Time }
+
+    private var buildHistory: List<Build> = emptyList()
 
     private val failureContentConsole =
         TestsConsoleBuilderImpl(
@@ -84,7 +89,13 @@ class DetailsTab(val project: Project) : TestCaseTab, Disposable {
             createdAtLabel.toolTipText = createdAt.toString()
         }
 
-        showTestHealthWarnings()
+        testHealthPanel.removeAll()
+        testCaseExecution.investigateHealth(project, buildHistory) {
+            // Verify that the currently active test case has not changed
+            if (this.testCaseExecution == testCaseExecution) {
+                addTestHealthWarning(it)
+            }
+        }
     }
 
     override fun activate() {
@@ -100,17 +111,6 @@ class DetailsTab(val project: Project) : TestCaseTab, Disposable {
                     }
                 }
             }
-        }
-    }
-
-    private fun showTestHealthWarnings() {
-        testHealthPanel.removeAll()
-
-        if (testCaseExecution.name.contains("cannot")) {
-            addTestHealthWarning("This is a negative test, good job!")
-        }
-        if ((testCaseExecution.time * 1000) > 300) {
-            addTestHealthWarning("This test took a long time (${timeLabel.text}) to run. The performance of your test suite may be improved by optimizing this test.")
         }
     }
 
@@ -130,6 +130,10 @@ class DetailsTab(val project: Project) : TestCaseTab, Disposable {
             }
 
         testHealthPanel.add(panel)
+    }
+
+    override fun handleNewBuilds(buildHistory: List<Build>) {
+        this.buildHistory = buildHistory
     }
 
     private fun TestCaseExecution.navigate() =

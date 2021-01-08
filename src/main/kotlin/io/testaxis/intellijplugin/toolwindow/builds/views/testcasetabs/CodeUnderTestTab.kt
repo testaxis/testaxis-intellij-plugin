@@ -101,10 +101,14 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
     override fun setTestCaseExecution(testCaseExecution: TestCaseExecution) {
         editor.showText("")
 
+        coveredFilesList.setPaintBusy(true)
         runBackgroundableTask("Collecting covered files", project, cancellable = false) {
             when (val coveredFiles = testCaseExecution.coveredFiles(project, buildHistory)) {
                 null -> runInEdt { panel.addToTop(NoPreviousBuildWarning(project)) }
-                else -> coveredFilesList.model = CollectionListModel(coveredFiles)
+                else -> {
+                    coveredFilesList.model = CollectionListModel(coveredFiles)
+                    coveredFilesList.setPaintBusy(false)
+                }
             }
         }
 
