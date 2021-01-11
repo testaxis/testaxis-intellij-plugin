@@ -13,16 +13,14 @@ import com.intellij.util.ui.components.BorderLayoutPanel
 import io.testaxis.intellijplugin.models.Build
 import io.testaxis.intellijplugin.models.TestCaseExecution
 import io.testaxis.intellijplugin.services.GitService
-import io.testaxis.intellijplugin.services.PsiService
 import io.testaxis.intellijplugin.toolwindow.builds.NoPreviousBuildWarning
 import io.testaxis.intellijplugin.toolwindow.builds.NotMatchingRevisionsWarning
 import io.testaxis.intellijplugin.toolwindow.builds.views.BuildsUpdateHandler
+import io.testaxis.intellijplugin.vcs.CoveredFile
 import io.testaxis.intellijplugin.vcs.TextualDiff
-import io.testaxis.intellijplugin.vcs.changes
+import io.testaxis.intellijplugin.vcs.coveredFiles
 import io.testaxis.intellijplugin.vcs.deletions
-import io.testaxis.intellijplugin.vcs.findPreviousBuild
 import io.testaxis.intellijplugin.vcs.textualDiff
-import kotlinx.coroutines.runBlocking
 import java.awt.event.ActionListener
 import javax.swing.JButton
 import javax.swing.JComponent
@@ -103,25 +101,13 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
     override fun setTestCaseExecution(testCaseExecution: TestCaseExecution) {
         editor.showText("")
 
+        coveredFilesList.setPaintBusy(true)
         runBackgroundableTask("Collecting covered files", project, cancellable = false) {
-            val model = CollectionListModel<CoveredFile>()
-
-            val previousBuild = testCaseExecution.build?.findPreviousBuild(project, buildHistory)
-
-            if (previousBuild == null) {
-                runInEdt { panel.addToTop(NoPreviousBuildWarning(project)) }
-            }
-
-            val changes = previousBuild?.let { testCaseExecution.build?.changes(project, previousBuild) }
-
-            runBlocking {
-                val coveredFiles = testCaseExecution.details(project).coveredLines.map { (fileName, lines) ->
-                    CoveredFile(fileName, lines, changes?.changeForPartialFileName(fileName))
-                }
-
-                runInEdt {
-                    coveredFiles.sortedBy { it.vcsChange?.type?.ordinal ?: Int.MAX_VALUE }.forEach { model.add(it) }
-                    coveredFilesList.model = model
+            when (val coveredFiles = testCaseExecution.coveredFiles(project, buildHistory)) {
+                null -> runInEdt { panel.addToTop(NoPreviousBuildWarning(project)) }
+                else -> {
+                    coveredFilesList.model = CollectionListModel(coveredFiles)
+                    coveredFilesList.setPaintBusy(false)
                 }
             }
         }
@@ -132,12 +118,6 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
                 panel.addToTop(it)
             }
         }
-    }
-
-    internal data class CoveredFile(val fileName: String, val lines: List<Int>, val vcsChange: Change?) {
-        fun getFile(project: Project) = project.service<PsiService>().findFileByRelativePath(fileName)
-
-        fun name() = fileName.substringAfterLast('/').substringBeforeLast('.')
     }
 
     override fun handleNewBuilds(buildHistory: List<Build>) {
