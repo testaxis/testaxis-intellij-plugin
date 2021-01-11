@@ -11,6 +11,8 @@ class TestReportToolWindowFactory : ToolWindowFactory {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val contentFactory = ContentFactory.SERVICE.getInstance()
 
+        toolWindow.setIcon(Icons.TestAxisSmall)
+
         toolWindow.contentManager.addContent(
             contentFactory.createContent(BuildsTab(project).create(), "Builds", false)
         )

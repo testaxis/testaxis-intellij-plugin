@@ -41,9 +41,9 @@ fun vertical(
         applyContent()
     }
 
-fun horizontal(vararg components: JComponent, applyContent: JPanel.() -> Unit = {}): JPanel =
+fun horizontal(vararg components: JComponent, hgap: Int = 5, applyContent: JPanel.() -> Unit = {}): JPanel =
     JPanel().apply {
-        layout = FlowLayout(FlowLayout.LEFT, 5, 0)
+        layout = FlowLayout(FlowLayout.LEFT, hgap, 0)
 
         components.forEach { add(it) }
 

@@ -9,6 +9,7 @@ import io.testaxis.intellijplugin.services.ApiService
 import io.testaxis.intellijplugin.services.SettingsNotInitializedException
 import io.testaxis.intellijplugin.services.UserNotAuthenticatedException
 import io.testaxis.intellijplugin.settings.SettingsState
+import io.testaxis.intellijplugin.toolwindow.Icons
 import io.testaxis.intellijplugin.toolwindow.borderLayoutPanel
 import io.testaxis.intellijplugin.toolwindow.vertical
 import kotlinx.coroutines.runBlocking
@@ -20,6 +21,8 @@ class WelcomeRightView(val project: Project) : RightView {
     private val panel = borderLayoutPanel {
         addToTop(
             vertical(
+                Label("").apply { icon = Icons.TestAxis },
+                Label(" "),
                 Label("Welcome to TestAxis!", bold = true),
                 Label("Select a build on the left to view test results."),
                 Label(" "),

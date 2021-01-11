@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.ui.SimpleColoredComponent
 import com.intellij.ui.components.Label
 import io.testaxis.intellijplugin.models.Build
+import io.testaxis.intellijplugin.toolwindow.Icons
 import io.testaxis.intellijplugin.toolwindow.borderLayoutPanel
 import io.testaxis.intellijplugin.toolwindow.horizontal
 import io.testaxis.intellijplugin.toolwindow.vertical
@@ -20,12 +21,14 @@ class BuildDetailsRightView(val project: Project) : RightView, BuildsUpdateHandl
     private val panel = borderLayoutPanel {
         addToTop(
             vertical(
-                horizontal(Label("Build"), buildLabel),
-                horizontal(Label("Previous Build"), previousBuildLabel)
+                horizontal(Label("").apply { icon = Icons.TestAxis }),
+                Label(" "),
+                horizontal(Label("Build:", bold = true), buildLabel),
+                horizontal(Label("Previous Build:", bold = true), previousBuildLabel)
             )
         )
     }.apply {
-        border = EmptyBorder(20, 20, 20, 20)
+        border = EmptyBorder(20, 15, 20, 15)
     }
 
     override fun getPanel() = panel
