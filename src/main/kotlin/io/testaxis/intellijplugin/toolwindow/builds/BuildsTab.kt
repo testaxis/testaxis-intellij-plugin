@@ -10,10 +10,12 @@ import com.intellij.openapi.progress.runBackgroundableTask
 import com.intellij.openapi.project.Project
 import com.intellij.ui.OnePixelSplitter
 import com.intellij.ui.ToolbarDecorator
+import com.intellij.ui.components.Label
 import com.intellij.util.ui.components.BorderLayoutPanel
 import io.testaxis.intellijplugin.messages.MessageConfiguration
 import io.testaxis.intellijplugin.services.ApiService
 import io.testaxis.intellijplugin.services.GitService
+import io.testaxis.intellijplugin.toolwindow.Icons
 import io.testaxis.intellijplugin.toolwindow.builds.filters.BranchFilter
 import io.testaxis.intellijplugin.toolwindow.builds.filters.StatusFilter
 import io.testaxis.intellijplugin.toolwindow.builds.tree.BuildsTree
@@ -22,6 +24,7 @@ import io.testaxis.intellijplugin.toolwindow.builds.views.BuildsUpdateHandler
 import io.testaxis.intellijplugin.toolwindow.builds.views.RightView
 import io.testaxis.intellijplugin.toolwindow.builds.views.TestCaseDetailsRightView
 import io.testaxis.intellijplugin.toolwindow.builds.views.WelcomeRightView
+import io.testaxis.intellijplugin.toolwindow.horizontal
 import kotlinx.coroutines.runBlocking
 import java.awt.CardLayout
 import javax.swing.JComponent
@@ -77,7 +80,7 @@ class BuildsTab(val project: Project) : Disposable {
         val splitter = OnePixelSplitter(SPLITTER_PROPORTION_ONE_THIRD)
 
         splitter.firstComponent = BorderLayoutPanel().apply {
-            addToTop(createToolbar())
+            addToTop(horizontal(Label("").apply { icon = Icons.TestAxisMedium }, createToolbar(), hgap = 0))
             add(createBuildsTreePanel())
         }
 
