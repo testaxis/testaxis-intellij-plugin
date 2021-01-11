@@ -18,6 +18,7 @@ import io.ktor.http.content.TextContent
 import io.testaxis.intellijplugin.config
 import io.testaxis.intellijplugin.createObjectMapper
 import io.testaxis.intellijplugin.models.Build
+import io.testaxis.intellijplugin.models.HealthWarning
 import io.testaxis.intellijplugin.models.TestCaseExecution
 import io.testaxis.intellijplugin.models.TestCaseExecutionDetails
 import io.testaxis.intellijplugin.models.User
@@ -40,6 +41,8 @@ interface ApiService {
     suspend fun getTestCaseExecutions(build: Build): List<TestCaseExecution>
 
     suspend fun getTestCaseExecutionDetails(testCaseExecution: TestCaseExecution): TestCaseExecutionDetails
+
+    suspend fun getTestCaseExecutionHealth(testCaseExecution: TestCaseExecution): List<HealthWarning>
 
     fun withProject(project: Project): ApiService
 }
@@ -99,6 +102,13 @@ class TestAxisApiService @NonInjectable constructor(val client: HttpClient = def
         catch {
             val url = "/projects/${settings().projectId}/builds/${testCaseExecution.build?.id ?: 0}" +
                 "/testcaseexecutions/${testCaseExecution.id}"
+            client.get(testAxisApiUrl(url)) { bearerAuthorization(settings().authenticatonToken) }
+        }
+
+    override suspend fun getTestCaseExecutionHealth(testCaseExecution: TestCaseExecution): List<HealthWarning> =
+        catch {
+            val url = "/projects/${settings().projectId}/builds/${testCaseExecution.build?.id ?: 0}" +
+                "/testcaseexecutions/${testCaseExecution.id}/health"
             client.get(testAxisApiUrl(url)) { bearerAuthorization(settings().authenticatonToken) }
         }
 

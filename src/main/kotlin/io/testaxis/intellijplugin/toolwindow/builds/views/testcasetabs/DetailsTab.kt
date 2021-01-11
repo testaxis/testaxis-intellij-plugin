@@ -13,6 +13,7 @@ import com.intellij.ui.JBColor
 import com.intellij.ui.LightColors
 import com.intellij.ui.components.Label
 import com.intellij.ui.components.Link
+import com.intellij.util.ui.UIUtil
 import io.testaxis.intellijplugin.diffForHumans
 import io.testaxis.intellijplugin.healthwarnings.investigateHealth
 import io.testaxis.intellijplugin.models.Build
@@ -53,6 +54,12 @@ class DetailsTab(val project: Project) : TestCaseTab, Disposable, BuildsUpdateHa
 
     private val testHealthPanel = vertical()
 
+    private val testHealthLoadingLabel = borderLayoutPanel {
+        add(Label("Collecting test health information...", style = UIUtil.ComponentStyle.SMALL))
+    }.apply {
+        border = EmptyBorder(10, 0, 0, 0)
+    }
+
     private val panel = borderLayoutPanel {
         addToTop(
             borderLayoutPanel(10) {
@@ -64,7 +71,8 @@ class DetailsTab(val project: Project) : TestCaseTab, Disposable, BuildsUpdateHa
                             Link("Open Test") { testCaseExecution.navigate() }
                         ),
                         horizontal(testSuiteNameLabel),
-                        horizontal(testHealthPanel)
+                        horizontal(testHealthPanel),
+                        horizontal(testHealthLoadingLabel),
                     )
                 )
                 addToRight(vertical(timeLabel.apply { horizontalAlignment = SwingConstants.RIGHT }, createdAtLabel))
@@ -90,12 +98,23 @@ class DetailsTab(val project: Project) : TestCaseTab, Disposable, BuildsUpdateHa
         }
 
         testHealthPanel.removeAll()
-        testCaseExecution.investigateHealth(project, buildHistory) {
-            // Verify that the currently active test case has not changed
-            if (this.testCaseExecution == testCaseExecution) {
-                addTestHealthWarning(it)
+        testHealthLoadingLabel.isVisible = true
+        testCaseExecution.investigateHealth(
+            project,
+            buildHistory,
+            finished = {
+                // Verify that the currently active test case has not changed
+                if (this.testCaseExecution == testCaseExecution) {
+                    runInEdt { testHealthLoadingLabel.isVisible = false }
+                }
+            },
+            warningReporter = {
+                // Verify that the currently active test case has not changed
+                if (this.testCaseExecution == testCaseExecution) {
+                    runInEdt { addTestHealthWarning(it) }
+                }
             }
-        }
+        )
     }
 
     override fun activate() {

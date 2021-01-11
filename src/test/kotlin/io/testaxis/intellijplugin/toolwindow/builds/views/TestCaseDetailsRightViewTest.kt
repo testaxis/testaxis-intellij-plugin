@@ -5,6 +5,7 @@ import io.testaxis.intellijplugin.Fakes
 import io.testaxis.intellijplugin.IntelliJPlatformUITest
 import io.testaxis.intellijplugin.fakeTestCaseExecution
 import io.testaxis.intellijplugin.fakeTestCaseExecutionDetails
+import io.testaxis.intellijplugin.models.HealthWarning
 import io.testaxis.intellijplugin.models.TestCaseExecution
 import org.assertj.swing.fixture.Containers
 import org.junit.jupiter.api.Test
@@ -19,6 +20,8 @@ class TestCaseDetailsRightViewTest : IntelliJPlatformUITest() {
     override fun getFakes() = Fakes(
         apiService = object : FakeApiService() {
             override suspend fun getTestCaseExecutionDetails(testCaseExecution: TestCaseExecution) = fakeDetails
+            override suspend fun getTestCaseExecutionHealth(testCaseExecution: TestCaseExecution) =
+                emptyList<HealthWarning>()
         }
     )
 

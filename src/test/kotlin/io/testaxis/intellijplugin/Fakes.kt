@@ -7,6 +7,7 @@ import com.intellij.openapi.vcs.changes.Change
 import com.intellij.testFramework.registerServiceInstance
 import git4idea.GitCommit
 import io.testaxis.intellijplugin.models.Build
+import io.testaxis.intellijplugin.models.HealthWarning
 import io.testaxis.intellijplugin.models.TestCaseExecution
 import io.testaxis.intellijplugin.models.TestCaseExecutionDetails
 import io.testaxis.intellijplugin.models.User
@@ -64,6 +65,10 @@ open class FakeApiService : ApiService {
 
     override suspend fun getTestCaseExecutionDetails(testCaseExecution: TestCaseExecution): TestCaseExecutionDetails =
         fakeTestCaseExecutionDetails()
+
+    override suspend fun getTestCaseExecutionHealth(testCaseExecution: TestCaseExecution): List<HealthWarning> {
+        TODO("Not yet implemented")
+    }
 
     override fun withProject(project: Project): ApiService = this
 }

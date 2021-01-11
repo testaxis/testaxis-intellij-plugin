@@ -8,11 +8,14 @@ import io.testaxis.intellijplugin.models.TestCaseExecution
 fun TestCaseExecution.investigateHealth(
     project: Project,
     buildHistory: List<Build>,
+    finished: () -> Unit = {},
     warningReporter: (String) -> Unit
 ) = runBackgroundableTask("Investigating Test Case Health", project, cancellable = false) {
-    listOf<HealthInvestigator>(
-        FlakinessInvestigator(project, buildHistory)
+    listOf(
+        FlakinessInvestigator(project, buildHistory),
+        RemoteWarningsInvestigator(project),
     ).forEach {
         it.investigate(this, warningReporter)
     }
+    finished()
 }
