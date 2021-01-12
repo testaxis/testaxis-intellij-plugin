@@ -19,26 +19,32 @@
     </a>
 </p>
 
-## Template ToDo list
-- [x] Create a new [IntelliJ Platform Plugin Template][template] project.
-- [x] Verify the [pluginGroup](/gradle.properties), [plugin ID](/src/main/resources/META-INF/plugin.xml) and [sources package](/src/main/kotlin).
-- [ ] Review the [Legal Agreements](https://plugins.jetbrains.com/docs/marketplace/legal-agreements.html).
-- [ ] [Publish a plugin manually](https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/publishing_plugin.html) for the first time.
-- [ ] Set the Plugin ID in the above README badges.
-- [ ] Set the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html).
-- [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified about releases containing new features and fixes.
+The IDE plugin of TestAxis shows details and context of tests executed during CI runs.
+
+## What is TestAxis?
 
 <!-- Plugin description -->
-This Fancy IntelliJ Platform Plugin is going to be your implementation of the brilliant ideas that you have.
+Commonly used CI platforms such as GitHub Actions or Travis CI let developers dive through hundreds of lines of logs to find the issue of a failing build.
+It turns out that the most important reason for a failing build is failing tests.
+Developers can be helped by showing a detailed overview of the tests that failed after a CI run that does not require looking at log files.
+The names and error messages of the failing tests are shown in this overview to obviate the need to look at log files.
 
-This specific section is a source for the [plugin.xml](/src/main/resources/META-INF/plugin.xml) file which will be extracted by the [Gradle](/build.gradle.kts) during the build process.
+However, even when the failing test is found, it is sometimes hard to identify the exact reason for the failure based on the test name/error message without additional context.
+This could be because the reason for failure is not necessarily related to the concept under test which is reflected in the test name, which could especially be the case since during local development a developer might only run tests that are obviously related to the code change, whereas during a CI build a test with a less obvious connection might fail.
+The error message might be too imprecise to judge what is going wrong.
+For example, a failure message like “Failed asserting that 24 is equal to 15” may not be informative enough for the developer to come up with the fix.
 
-To keep everything working, do not remove `<!-- ... -->` sections. 
+Thus, additional context is needed to find the issue causing the test to fail.
+Therefore, developers could be helped by providing “test context” in the detailed overview of failed tests.
+The test context may include additional information such as the commit that made the test fail, the test code, and the _changed_ code under test.
+The goal is to give developers insights into failing tests after CI builds and to provide them with information that helps to resolve the issues causing the failing tests faster.
+The insights are provided directly in the IDE, right there where the developer needs to fix the failing tests.
+The information presented to the user is based on historical test executions with the goal to shift the axis from builds to tests.
 <!-- Plugin description end -->
 
 ## Installation
 
-- Using IDE built-in plugin system:
+- [coming soon] Using IDE built-in plugin system:
   
   <kbd>Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "testaxis-intellij-plugin"</kbd> >
   <kbd>Install Plugin</kbd>
@@ -48,8 +54,29 @@ To keep everything working, do not remove `<!-- ... -->` sections.
   Download the [latest release](https://github.com/testaxis/testaxis-intellij-plugin/releases/latest) and install it manually using
   <kbd>Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
 
+See [testaxis.io](https://testaxis.io) for instructions on how to set up TestAxis for your CI service.
 
----
-Plugin based on the [IntelliJ Platform Plugin Template][template].
+## Development
 
-[template]: https://github.com/JetBrains/intellij-platform-plugin-template
+Run an IntelliJ instance with the plugin enabled:
+```bash
+$ gradlew runIde
+```
+
+Run the tests and static analysis tools:
+```
+$ gradlew check
+```
+
+## Security
+
+If you discover any security related issues, please email mail@casperboone.nl instead of using the issue tracker.
+
+## Credits
+
+- [Casper Boone](https://github.com/casperboone)
+- [All Contributors](../../contributors)
+
+## License
+
+The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
