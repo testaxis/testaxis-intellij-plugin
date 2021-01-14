@@ -12,10 +12,17 @@ class RemoteWarningsInvestigator(private val project: Project) : HealthInvestiga
         runBlocking {
             service<ApiService>().withProject(project).getTestCaseExecutionHealth(testCaseExecution).map {
                 when (it.type) {
-                    "fails_often" -> warningReporter("This test fails often (${it.value} times in the last 50 builds).")
+                    "fails_often" -> warningReporter(
+                        "This test is failing often (${it.value} times in the last 50 builds). This may be an " +
+                            "indication that your test is too tightly coupled to your production code or that the " +
+                            "test may be flaky."
+                    )
                     "slower_than_average" -> {
                         val average = StringUtil.formatDuration((it.value.toDouble() * 1000).toLong())
-                        warningReporter("This test performs slower than average ($average).")
+                        warningReporter(
+                            "The performance of your test suite may be improved by speeding up this test. It " +
+                                "performs slower than twice the average. The average test execution time is $average."
+                        )
                     }
                 }
             }

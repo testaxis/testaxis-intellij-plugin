@@ -138,10 +138,11 @@ class DetailsTab(val project: Project) : TestCaseTab, Disposable, BuildsUpdateHa
             borderLayoutPanel {
                 add(
                     borderLayoutPanel {
-                        add(Label(message).apply { icon = AllIcons.General.Warning })
+                        addToTop(Label("<html>$message</html>").apply { icon = AllIcons.General.Warning })
                     }.apply {
                         border = EmptyBorder(5, 10, 5, 10)
                         background = LightColors.YELLOW
+                        withPreferredWidth(600)
                     }
                 )
             }.apply {
