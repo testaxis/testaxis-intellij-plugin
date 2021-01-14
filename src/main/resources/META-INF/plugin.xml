@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.testaxis.intellijplugin</id>
     <name>TestAxis</name>
-    <vendor>testaxis</vendor>
+    <vendor>Casper Boone</vendor>
 
     <!-- Product and plugin compatibility requirements -->
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
