@@ -14,7 +14,10 @@ class FlakinessInvestigator(private val project: Project, private val buildHisto
         val coveredFiles = testCaseExecution.coveredFiles(project, buildHistory) ?: return
 
         if (coveredFiles.none { it.vcsChange != null }) {
-            warningReporter("This test might be flaky.")
+            warningReporter(
+                "This test did not fail due to code changes. The test failure may be caused by flakiness or an " +
+                    "extrinsic issue such as a configuration change."
+            )
         }
     }
 }
