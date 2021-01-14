@@ -11,11 +11,11 @@
     <a href="https://github.com/testaxis/testaxis-intellij-plugin/actions?query=workflow%3ABuild">
         <img src="https://img.shields.io/github/workflow/status/testaxis/testaxis-intellij-plugin/Build?style=for-the-badge" />
     </a>
-    <a href="https://plugins.jetbrains.com/plugin/PLUGIN_ID">
-        <img src="https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg?style=for-the-badge" />
+    <a href="https://plugins.jetbrains.com/plugin/15842-testaxis">
+        <img src="https://img.shields.io/jetbrains/plugin/v/15842-testaxis.svg?style=for-the-badge" />
     </a>
-    <a href="https://plugins.jetbrains.com/plugin/PLUGIN_ID">
-        <img src="https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg?style=for-the-badge" />
+    <a href="https://plugins.jetbrains.com/plugin/15842-testaxis">
+        <img src="https://img.shields.io/jetbrains/plugin/d/15842-testaxis.svg?style=for-the-badge" />
     </a>
 </p>
 
