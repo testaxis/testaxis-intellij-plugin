@@ -23,7 +23,8 @@ class SettingsConfigurable(val project: Project) : Configurable {
         val settings = project.service<SettingsState>()
 
         return settingsComponent.authenticationTokenField.text != settings.authenticatonToken ||
-            settingsComponent.projectId != settings.projectId
+            settingsComponent.projectId != settings.projectId ||
+            settingsComponent.serverHostField.text != settings.serverHost
     }
 
     override fun apply() {
@@ -31,6 +32,7 @@ class SettingsConfigurable(val project: Project) : Configurable {
 
         settings.authenticatonToken = settingsComponent.authenticationTokenField.text
         settings.projectId = settingsComponent.projectId
+        settings.serverHost = settingsComponent.serverHostField.text
 
         project.messageBus.syncPublisher(MessageConfiguration.API_SETTINGS_UPDATED_TOPIC).notify(settings)
     }
@@ -40,6 +42,7 @@ class SettingsConfigurable(val project: Project) : Configurable {
 
         settingsComponent.authenticationTokenField.text = settings.authenticatonToken
         settingsComponent.projectId = settings.projectId
+        settingsComponent.serverHostField.text = settings.serverHost
 
         settingsComponent.loadProjectsIfEmpty()
     }

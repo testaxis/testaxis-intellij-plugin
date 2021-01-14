@@ -26,12 +26,10 @@ import java.util.Properties
  */
 object config {
     object testaxis : PropertyGroup() {
+        val defaultHost by stringType
+
         object api : PropertyGroup() {
             val url by stringType
-        }
-
-        object auth : PropertyGroup() {
-            val githubUrl by stringType
         }
 
         object ws : PropertyGroup() {

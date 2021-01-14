@@ -4,19 +4,23 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.progress.runBackgroundableTask
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.ui.Messages.showMessageDialog
 import com.intellij.ui.CollectionListModel
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBList
 import com.intellij.ui.components.JBTextArea
+import com.intellij.ui.components.JBTextField
 import com.intellij.ui.components.Label
 import com.intellij.ui.components.htmlComponent
 import com.intellij.ui.layout.GrowPolicy
 import com.intellij.ui.layout.panel
-import io.testaxis.intellijplugin.config
+import com.intellij.util.ui.UIUtil
 import io.testaxis.intellijplugin.services.ApiService
 import io.testaxis.intellijplugin.services.UserNotAuthenticatedException
 import io.testaxis.intellijplugin.toolwindow.horizontal
 import kotlinx.coroutines.runBlocking
+import java.io.IOException
+import java.nio.channels.UnresolvedAddressException
 import javax.swing.BorderFactory
 import javax.swing.JButton
 import javax.swing.ListSelectionModel
@@ -28,6 +32,7 @@ class SettingsComponent(val project: Project) {
         lineWrap = true
     }
     var projectId: Int = -1
+    val serverHostField = JBTextField()
 
     private var userNameLabel = Label("", bold = true)
     private var userEmailLabel = Label("")
@@ -70,7 +75,7 @@ class SettingsComponent(val project: Project) {
             }
             row {
                 htmlComponent(
-                    "Or login through <a href=\"${config(config.testaxis.auth.githubUrl)}\">GitHub</a> " +
+                    "Or login through <a href=\"${gitHubAuthUrl()}\">GitHub</a> " +
                         "and paste your TestAxis Authentication Token below."
                 )()
             }
@@ -92,6 +97,21 @@ class SettingsComponent(val project: Project) {
                 commentRow("Verify a new authentication token to refresh the list of projects.")
             }
         }
+
+        hideableRow("Advanced Settings") {
+            row {
+                label("Server Host:")
+            }
+            row {
+                serverHostField()
+            }
+            row {
+                label(
+                    "After changing the host, apply settings first before authentication or project selection.",
+                    style = UIUtil.ComponentStyle.SMALL
+                )
+            }
+        }
     }
 
     init {
@@ -108,19 +128,23 @@ class SettingsComponent(val project: Project) {
 
                 loadProjects()
 
-                Messages.showMessageDialog(
+                showMessageDialog(
                     project,
                     "Welcome, ${user.name}!",
                     "Authentication Successful",
                     Messages.getInformationIcon()
                 )
             } catch (exception: UserNotAuthenticatedException) {
-                Messages.showMessageDialog(
+                showMessageDialog(
                     project,
                     "Please verify that your authentication token is correct.",
                     "Authentication Unsuccessful",
                     Messages.getErrorIcon()
                 )
+            } catch (exception: IOException) {
+                showMessageDialog(project, exception.message, "Could Not Connect To Server", Messages.getErrorIcon())
+            } catch (exception: UnresolvedAddressException) {
+                showMessageDialog(project, "Invalid address.", "Could Not Connect To Server", Messages.getErrorIcon())
             }
         }
     }
@@ -144,6 +168,10 @@ class SettingsComponent(val project: Project) {
             }
         }
     }
+
+    private fun gitHubAuthUrl() =
+        "https://${serverHostField.text}/oauth2/authorize/github" +
+            "?redirect_uri=https://${serverHostField.text}/auth/token"
 
     private data class ProjectOption(val project: TestAxisProject) {
         override fun toString() = project.slug
