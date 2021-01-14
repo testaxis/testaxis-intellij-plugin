@@ -19,13 +19,18 @@
     </a>
 </p>
 
+<!-- Plugin description -->
 The IDE plugin of TestAxis shows details and context of tests executed during CI runs.
 
-![Plugin](.github/readme/plugin.png)
+**Please note:**
+This is a research project.
+The plugin is currently not ready for use in production.
+Use the plugin at your own risk.
+
+![Plugin](https://raw.githubusercontent.com/testaxis/testaxis-intellij-plugin/main/.github/readme/plugin.png)
 
 ## What is TestAxis?
 
-<!-- Plugin description -->
 Commonly used CI platforms such as GitHub Actions or Travis CI let developers dive through hundreds of lines of logs to find the issue of a failing build.
 It turns out that the most important reason for a failing build is failing tests.
 Developers can be helped by showing a detailed overview of the tests that failed after a CI run that does not require looking at log files.
