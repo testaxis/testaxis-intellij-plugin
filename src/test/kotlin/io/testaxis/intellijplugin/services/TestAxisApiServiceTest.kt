@@ -145,7 +145,8 @@ class TestAxisApiServiceTest : IntelliJPlatformTest() {
     fun `a user cannot retrieve a build they do not have access to`() {
     }
 
-    private fun testAxisApiUrl(url: String) = config(config.testaxis.api.url) + url
+    private fun testAxisApiUrl(url: String) =
+        "https://${fixture.project.service<SettingsState>().serverHost}${config(config.testaxis.api.url)}$url"
 
     fun createTestAxisApiService(
         requestedUrl: String,

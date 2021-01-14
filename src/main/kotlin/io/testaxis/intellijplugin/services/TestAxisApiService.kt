@@ -51,7 +51,7 @@ interface ApiService {
 class TestAxisApiService @NonInjectable constructor(val client: HttpClient = defaultClient()) : ApiService, Disposable {
     private lateinit var project: Project
 
-    private fun testAxisApiUrl(url: String) = config(config.testaxis.api.url) + url
+    private fun testAxisApiUrl(url: String) = "https://${settings().serverHost}${config(config.testaxis.api.url)}$url"
 
     override suspend fun login(email: String, password: String): AuthResponse = catch {
         client.post(testAxisApiUrl("/auth/login")) {

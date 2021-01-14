@@ -28,7 +28,7 @@ class TestAxisWebSocketService(val project: Project) : WebSocketService {
     @Suppress("TooGenericExceptionCaught")
     private fun loadClient() = try {
         WebsocketClient(
-            config(config.testaxis.ws.host),
+            project.service<SettingsState>().serverHost,
             config(config.testaxis.ws.port),
             config(config.testaxis.ws.endpoint),
             project.service<SettingsState>().authenticatonToken
