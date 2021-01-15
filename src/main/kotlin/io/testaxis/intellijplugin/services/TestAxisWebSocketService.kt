@@ -27,17 +27,21 @@ class TestAxisWebSocketService(val project: Project) : WebSocketService {
 
     @Suppress("TooGenericExceptionCaught")
     private fun loadClient() = try {
-        WebsocketClient(
-            project.service<SettingsState>().serverHost,
-            config(config.testaxis.ws.port),
-            config(config.testaxis.ws.endpoint),
-            project.service<SettingsState>().authenticatonToken
-        ).apply {
-            subscribe<Build>(config(config.testaxis.ws.topics.builds)) {
-                if (it.projectId == project.service<SettingsState>().projectId) {
-                    project.messageBus.syncPublisher(MessageConfiguration.BUILD_FINISHED_TOPIC).notify(it)
+        if (project.service<SettingsState>().authenticatonToken.isNotEmpty()) {
+            WebsocketClient(
+                project.service<SettingsState>().serverHost,
+                config(config.testaxis.ws.port),
+                config(config.testaxis.ws.endpoint),
+                project.service<SettingsState>().authenticatonToken
+            ).apply {
+                subscribe<Build>(config(config.testaxis.ws.topics.builds)) {
+                    if (it.projectId == project.service<SettingsState>().projectId) {
+                        project.messageBus.syncPublisher(MessageConfiguration.BUILD_FINISHED_TOPIC).notify(it)
+                    }
                 }
             }
+        } else {
+            null
         }
     } catch (exception: Exception) {
         exception.printStackTrace()
