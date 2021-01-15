@@ -3,8 +3,8 @@
 # TestAxis IntelliJ Plugin Changelog
 
 ## [Unreleased]
-### Added
-- Nothing yet.
+### Fixed
+- Websocket connection will no longer be attempted before a valid authentication token is set.
 
 ## 0.0.1
 ### Added
