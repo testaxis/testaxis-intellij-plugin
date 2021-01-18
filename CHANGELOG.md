@@ -5,6 +5,7 @@
 ## [Unreleased]
 ### Fixed
 - Websocket connection will no longer be attempted before a valid authentication token is set.
+- Remove unused Project Statistics tab.
 
 ## 0.0.1
 ### Added
