@@ -43,6 +43,7 @@ class SettingsConfigurable(val project: Project) : Configurable {
         settingsComponent.authenticationTokenField.text = settings.authenticatonToken
         settingsComponent.projectId = settings.projectId
         settingsComponent.serverHostField.text = settings.serverHost
+        settingsComponent.updateGitHubAuthUrl()
 
         settingsComponent.loadProjectsIfEmpty()
     }

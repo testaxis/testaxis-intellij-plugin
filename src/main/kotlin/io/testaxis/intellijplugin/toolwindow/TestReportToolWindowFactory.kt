@@ -5,7 +5,6 @@ import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.content.ContentFactory
 import io.testaxis.intellijplugin.toolwindow.builds.BuildsTab
-import io.testaxis.intellijplugin.toolwindow.projectstatistics.ProjectStatisticsTab
 
 class TestReportToolWindowFactory : ToolWindowFactory {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
@@ -15,10 +14,6 @@ class TestReportToolWindowFactory : ToolWindowFactory {
 
         toolWindow.contentManager.addContent(
             contentFactory.createContent(BuildsTab(project).create(), "Builds", false)
-        )
-
-        toolWindow.contentManager.addContent(
-            contentFactory.createContent(ProjectStatisticsTab().content(), "Project Statistics", false)
         )
     }
 }

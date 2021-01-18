@@ -51,7 +51,8 @@ interface ApiService {
 class TestAxisApiService @NonInjectable constructor(val client: HttpClient = defaultClient()) : ApiService, Disposable {
     private lateinit var project: Project
 
-    private fun testAxisApiUrl(url: String) = "https://${settings().serverHost}${config(config.testaxis.api.url)}$url"
+    private fun testAxisApiUrl(url: String) =
+        "https://${settings(checkInitialization = false).serverHost}${config(config.testaxis.api.url)}$url"
 
     override suspend fun login(email: String, password: String): AuthResponse = catch {
         client.post(testAxisApiUrl("/auth/login")) {
@@ -122,12 +123,12 @@ class TestAxisApiService @NonInjectable constructor(val client: HttpClient = def
         client.close()
     }
 
-    private fun settings(): SettingsState {
+    private fun settings(checkInitialization: Boolean = true): SettingsState {
         if (!this::project.isInitialized) {
             error("Cannot get settings, project not provided.")
         }
         val settings = project.service<SettingsState>()
-        if (!settings.isInitialized()) {
+        if (checkInitialization && !settings.isInitialized()) {
             throw SettingsNotInitializedException()
         }
         return settings
