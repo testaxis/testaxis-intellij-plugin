@@ -6,12 +6,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.Messages.showMessageDialog
 import com.intellij.ui.CollectionListModel
+import com.intellij.ui.HyperlinkLabel
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBList
 import com.intellij.ui.components.JBTextArea
 import com.intellij.ui.components.JBTextField
 import com.intellij.ui.components.Label
-import com.intellij.ui.components.htmlComponent
 import com.intellij.ui.layout.GrowPolicy
 import com.intellij.ui.layout.panel
 import com.intellij.util.ui.UIUtil
@@ -27,6 +27,7 @@ import javax.swing.ListSelectionModel
 import io.testaxis.intellijplugin.models.Project as TestAxisProject
 
 class SettingsComponent(val project: Project) {
+    var gitHubAuthLink = HyperlinkLabel("GitHub")
     val authenticationTokenField = JBTextArea().apply {
         rows = 3
         lineWrap = true
@@ -74,9 +75,10 @@ class SettingsComponent(val project: Project) {
                 )
             }
             row {
-                htmlComponent(
-                    "Or login through <a href=\"${gitHubAuthUrl()}\">GitHub</a> " +
-                        "and paste your TestAxis Authentication Token below."
+                horizontal(
+                    Label("Or login through"),
+                    gitHubAuthLink,
+                    Label("and paste your TestAxis Authentication Token below."),
                 )()
             }
             row {
@@ -158,6 +160,10 @@ class SettingsComponent(val project: Project) {
     }
 
     private fun loadProjects() {
+        if (authenticationTokenField.text.isEmpty()) {
+            return
+        }
+
         runBackgroundableTask("Retrieving Projects", project, cancellable = false) {
             runBlocking {
                 val projectOptions = service<ApiService>().getProjects(authenticationTokenField.text).map {
@@ -169,9 +175,10 @@ class SettingsComponent(val project: Project) {
         }
     }
 
-    private fun gitHubAuthUrl() =
+    fun updateGitHubAuthUrl() = gitHubAuthLink.setHyperlinkTarget(
         "https://${serverHostField.text}/oauth2/authorize/github" +
             "?redirect_uri=https://${serverHostField.text}/auth/token"
+    )
 
     private data class ProjectOption(val project: TestAxisProject) {
         override fun toString() = project.slug

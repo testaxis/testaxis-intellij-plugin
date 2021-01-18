@@ -15,6 +15,7 @@ import com.intellij.util.ui.components.BorderLayoutPanel
 import io.testaxis.intellijplugin.messages.MessageConfiguration
 import io.testaxis.intellijplugin.services.ApiService
 import io.testaxis.intellijplugin.services.GitService
+import io.testaxis.intellijplugin.services.SettingsNotInitializedException
 import io.testaxis.intellijplugin.toolwindow.Icons
 import io.testaxis.intellijplugin.toolwindow.builds.filters.BranchFilter
 import io.testaxis.intellijplugin.toolwindow.builds.filters.StatusFilter
@@ -108,20 +109,24 @@ class BuildsTab(val project: Project) : Disposable {
 
     private fun updateBuilds(): Unit = runBackgroundableTask("Retrieving builds", project, cancellable = false) {
         runBlocking {
-            val builds = service<ApiService>().withProject(project).getBuilds()
+            try {
+                val builds = service<ApiService>().withProject(project).getBuilds()
 
-            builds.filter { it.commitMessage == null }.forEach {
-                project.service<GitService>().retrieveCommitMessage(it.commit, ignoreErrors = true)
-                    ?.let { message -> it.commitMessage = message }
+                builds.filter { it.commitMessage == null }.forEach {
+                    project.service<GitService>().retrieveCommitMessage(it.commit, ignoreErrors = true)
+                        ?.let { message -> it.commitMessage = message }
+                }
+
+                runInEdt {
+                    buildsTree.updateData(builds.filter { build -> filters.all { it.filter(build) } })
+                }
+
+                branchFilter.updateBranches(builds.map { it.branch }.distinct())
+
+                stateManager.views.filterIsInstance<BuildsUpdateHandler>().forEach { it.handleNewBuilds(builds) }
+            } catch (exception: SettingsNotInitializedException) {
+                println("Settings have not been initialized yet.")
             }
-
-            runInEdt {
-                buildsTree.updateData(builds.filter { build -> filters.all { it.filter(build) } })
-            }
-
-            branchFilter.updateBranches(builds.map { it.branch }.distinct())
-
-            stateManager.views.filterIsInstance<BuildsUpdateHandler>().forEach { it.handleNewBuilds(builds) }
         }
     }
 
