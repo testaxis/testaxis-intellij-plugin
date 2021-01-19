@@ -3,6 +3,18 @@
 # TestAxis IntelliJ Plugin Changelog
 
 ## [Unreleased]
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+## [0.0.2]
 ### Fixed
 - Websocket connection will no longer be attempted before a valid authentication token is set.
 - Remove unused Project Statistics tab.
