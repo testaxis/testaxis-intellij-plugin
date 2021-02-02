@@ -13,10 +13,12 @@ import java.io.File
 
 private val changesForBuilds = mutableMapOf<Build, ChangesList?>()
 
-fun Build.changes(project: Project, previousBuild: Build) =
-    changesForBuilds.computeIfAbsent(this) {
-        project.service<GitService>().changes(previousBuild.commit, commit)
+fun Build.changes(project: Project, previousBuild: Build): ChangesList {
+    if (!changesForBuilds.containsKey(this)) {
+        changesForBuilds[this] = project.service<GitService>().changes(previousBuild.commit, commit)
     }
+    return changesForBuilds[this] ?: error("List of changes is not present.")
+}
 
 data class ChangesList(val changes: List<Change>) {
     fun changeForFile(file: File) = changes
