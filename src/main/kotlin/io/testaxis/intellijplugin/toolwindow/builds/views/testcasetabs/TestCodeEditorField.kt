@@ -46,6 +46,8 @@ class TestCodeEditorField(project: Project) : LanguageTextField(null, project, "
         settings.isLineNumbersShown = true
         settings.isAdditionalPageAtBottom = true
 
+        isViewer = false
+
         highlighter = HighlighterFactory.createHighlighter(project, fileType)
     }
 
