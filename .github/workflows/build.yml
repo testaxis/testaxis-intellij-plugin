@@ -160,8 +160,7 @@ jobs:
         with:
           plugin-location: plugin-artifact/*.zip
           ide-versions: |
-            ideaIC:2020.1
-            ideaIC:2020.2
+            ideaIC:2020.3
 
       # Print the output of the verify step
       - name: Print Logs
