@@ -29,6 +29,7 @@ import javax.swing.JScrollPane
 import javax.swing.ListSelectionModel
 
 private const val SPLITTER_PROPORTION_ONE_THIRD = .33f
+private const val SCROLL_WINDOW_START = -5
 
 class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler {
     override val tabName = "Code Under Test"
@@ -63,6 +64,8 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
         coveredFile ?: return
 
         editor.showFile(coveredFile.getFile(project))
+        editor.setCaretPosition(0)
+
         coveredFile.lines.forEach { editor.highlightCoveredLine(it) }
 
         coveredFile.vcsChange?.let { change ->
@@ -70,12 +73,17 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
                 diffInformationPanel.isVisible = true
                 showFullDiffButton.replaceActionListener { project.service<GitService>().showDiff(change) }
 
-                change.textualDiff().run {
-                    highlightChanges(coveredFile.lines)
-                    giveOptionalDeletionsWarning()
+                val changeList = change.textualDiff()
+                changeList.changedAndCoveredLines(coveredFile.lines).run {
+                    forEach(editor::highlightCoveredAndChangedLine)
+                    editor.moveCaretToLine(maxOf((firstOrNull() ?: 0) + SCROLL_WINDOW_START, 0))
                 }
+                changeList.changedLines().forEach(editor::highlightChangedLine)
+                changeList.giveOptionalDeletionsWarning()
             }
         }
+
+        editor.scrollToCaretPosition()
     }
 
     override fun activate() {
@@ -123,6 +131,13 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
     override fun handleNewBuilds(buildHistory: List<Build>) {
         this.buildHistory = buildHistory
     }
+
+    private fun TextualDiff.changedLines() = this
+        .map { fragment -> ((fragment.startLine2 + 1) until (fragment.endLine2 + 1)) }
+        .flatMap { range -> range.toList() }
+
+    private fun TextualDiff.changedAndCoveredLines(coveredLines: List<Int>) =
+        changedLines().filter { coveredLines.contains(it) }
 
     private fun TextualDiff.highlightChanges(coveredLines: List<Int>) {
         onEach { fragment ->

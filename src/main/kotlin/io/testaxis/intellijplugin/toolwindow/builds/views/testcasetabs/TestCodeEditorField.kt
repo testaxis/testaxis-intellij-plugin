@@ -2,6 +2,7 @@ package io.testaxis.intellijplugin.toolwindow.builds.views.testcasetabs
 
 import com.intellij.ide.highlighter.HighlighterFactory
 import com.intellij.openapi.editor.EditorFactory
+import com.intellij.openapi.editor.LogicalPosition
 import com.intellij.openapi.editor.colors.EditorColors
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.ex.EditorEx
@@ -23,6 +24,7 @@ private const val CHANGED_LINE_HIGHLIGHT_LAYER = 5952
 private const val COVERED_AND_CHANGED_LINE_HIGHLIGHT_LAYER = 5953
 private const val FRAGMENT_HIGHLIGHT_LAYER = 5960
 
+@Suppress("TooManyFunctions")
 class TestCodeEditorField(project: Project) : LanguageTextField(null, project, "PLACEHOLDER") {
     init {
         isOneLineMode = false
@@ -51,9 +53,6 @@ class TestCodeEditorField(project: Project) : LanguageTextField(null, project, "
             file.fileType,
             PsiDocumentManager.getInstance(project).getDocument(file)
         )
-
-        setCaretPosition(0)
-        scrollToCaretPosition()
     }
 
     fun showTestMethod(method: PsiMethod?) {
@@ -109,7 +108,12 @@ class TestCodeEditorField(project: Project) : LanguageTextField(null, project, "
         effectType = EffectType.ROUNDED_BOX
     }
 
-    private fun scrollToCaretPosition() =
+    fun moveCaretToLine(lineNumber: Int) =
+        with(editor ?: throw IllegalStateException("Cannot set caret position when editor is not yet created.")) {
+            caretModel.moveToLogicalPosition(LogicalPosition(lineNumber, 0))
+        }
+
+    fun scrollToCaretPosition() =
         with(editor ?: throw IllegalStateException("Cannot scroll to caret when editor is not yet created.")) {
             scrollingModel.scrollVertically(offsetToPoint2D(caretModel.offset).y.toInt())
         }
