@@ -8,25 +8,29 @@ import com.intellij.openapi.vcs.changes.Change
 import com.intellij.ui.CollectionListModel
 import com.intellij.ui.OnePixelSplitter
 import com.intellij.ui.components.JBList
-import com.intellij.ui.layout.panel
+import com.intellij.ui.components.Label
 import com.intellij.util.ui.components.BorderLayoutPanel
 import io.testaxis.intellijplugin.models.Build
 import io.testaxis.intellijplugin.models.TestCaseExecution
 import io.testaxis.intellijplugin.services.GitService
+import io.testaxis.intellijplugin.toolwindow.borderLayoutPanel
 import io.testaxis.intellijplugin.toolwindow.builds.NoPreviousBuildWarning
 import io.testaxis.intellijplugin.toolwindow.builds.NotMatchingRevisionsWarning
 import io.testaxis.intellijplugin.toolwindow.builds.views.BuildsUpdateHandler
+import io.testaxis.intellijplugin.toolwindow.horizontal
 import io.testaxis.intellijplugin.vcs.CoveredFile
 import io.testaxis.intellijplugin.vcs.TextualDiff
 import io.testaxis.intellijplugin.vcs.coveredFiles
 import io.testaxis.intellijplugin.vcs.deletions
 import io.testaxis.intellijplugin.vcs.textualDiff
+import java.awt.Color
 import java.awt.event.ActionListener
 import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.JLabel
 import javax.swing.JScrollPane
 import javax.swing.ListSelectionModel
+import javax.swing.border.EmptyBorder
 
 private const val SPLITTER_PROPORTION_ONE_THIRD = .33f
 private const val SCROLL_WINDOW_START = -5
@@ -43,13 +47,26 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
     private val editor = TestCodeEditorField(project)
 
     private val diffInformationLabel = JLabel()
-    private val showFullDiffButton = JButton("Show Full Diff")
-    private val diffInformationPanel = panel {
-        row {
-            diffInformationLabel()
-            showFullDiffButton()
-        }
-    }.apply { isVisible = false }
+    private val showFullDiffButton = JButton("Show Full Diff").apply { background = background.darker() }
+    private val diffInformationPanel = borderLayoutPanel {
+        addToLeft(
+            horizontal(
+                legendLabel("Covered and Changed", TestCodeEditorField.COVERED_AND_CHANGED_LINE_COLOR),
+                legendLabel("Changed", TestCodeEditorField.CHANGED_LINE_COLOR),
+                legendLabel("Covered", TestCodeEditorField.COVERED_LINE_COLOR),
+            ).apply { background = background.darker() }
+        )
+        addToRight(
+            horizontal(
+                diffInformationLabel,
+                showFullDiffButton
+            ).apply { background = background.darker() }
+        )
+    }.apply {
+        isVisible = false
+        border = EmptyBorder(10, 10, 10, 10)
+        background = background.darker()
+    }
 
     private var buildHistory: List<Build> = emptyList()
 
@@ -152,10 +169,20 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
     }
 
     private fun TextualDiff.giveOptionalDeletionsWarning() = deletions().let {
-        if (it > 0) {
+        if (it == 1) {
+            diffInformationLabel.text = "$it code fragment was removed, see the full diff."
+        }
+        if (it > 1) {
             diffInformationLabel.text = "$it code fragments were removed, see the full diff."
         }
     }
+
+    private fun legendLabel(title: String, color: Color) =
+        borderLayoutPanel {
+            add(Label(title))
+            background = color
+            border = EmptyBorder(5, 5, 5, 5)
+        }
 }
 
 fun JButton.replaceActionListener(actionListener: ActionListener) {

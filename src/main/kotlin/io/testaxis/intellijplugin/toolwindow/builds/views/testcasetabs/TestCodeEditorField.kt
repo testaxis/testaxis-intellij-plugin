@@ -26,6 +26,12 @@ private const val FRAGMENT_HIGHLIGHT_LAYER = 5960
 
 @Suppress("TooManyFunctions")
 class TestCodeEditorField(project: Project) : LanguageTextField(null, project, "PLACEHOLDER") {
+    companion object {
+        val COVERED_LINE_COLOR = JBColor.YELLOW.darker()
+        val CHANGED_LINE_COLOR = JBColor.GREEN.darker().darker()
+        val COVERED_AND_CHANGED_LINE_COLOR = JBColor.MAGENTA.darker()
+    }
+
     init {
         isOneLineMode = false
         autoscrolls = true
@@ -78,21 +84,21 @@ class TestCodeEditorField(project: Project) : LanguageTextField(null, project, "
         editor?.markupModel?.addLineHighlighter(
             lineNumber - 1,
             COVERED_LINE_HIGHLIGHT_LAYER,
-            createHighlightAttributes(JBColor.YELLOW.darker())
+            createHighlightAttributes(COVERED_LINE_COLOR)
         )
 
     fun highlightChangedLine(lineNumber: Int) =
         editor?.markupModel?.addLineHighlighter(
             lineNumber - 1,
             CHANGED_LINE_HIGHLIGHT_LAYER,
-            createHighlightAttributes(JBColor.GREEN.darker().darker())
+            createHighlightAttributes(CHANGED_LINE_COLOR)
         )
 
     fun highlightCoveredAndChangedLine(lineNumber: Int) =
         editor?.markupModel?.addLineHighlighter(
             lineNumber - 1,
             COVERED_AND_CHANGED_LINE_HIGHLIGHT_LAYER,
-            createHighlightAttributes(JBColor.MAGENTA.darker())
+            createHighlightAttributes(COVERED_AND_CHANGED_LINE_COLOR)
         )
 
     fun highlightElement(element: PsiElement?) = editor?.markupModel?.addRangeHighlighter(
