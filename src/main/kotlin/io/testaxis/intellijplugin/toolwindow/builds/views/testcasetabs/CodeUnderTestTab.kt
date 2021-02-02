@@ -63,7 +63,7 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
         coveredFile ?: return
 
         editor.showFile(coveredFile.getFile(project))
-        coveredFile.lines.forEach { editor.highlightLine(it) }
+        coveredFile.lines.forEach { editor.highlightCoveredLine(it) }
 
         coveredFile.vcsChange?.let { change ->
             if (change.type == Change.Type.MODIFICATION) {
@@ -71,7 +71,7 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
                 showFullDiffButton.replaceActionListener { project.service<GitService>().showDiff(change) }
 
                 change.textualDiff().run {
-                    highlightChanges()
+                    highlightChanges(coveredFile.lines)
                     giveOptionalDeletionsWarning()
                 }
             }
@@ -124,12 +124,15 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
         this.buildHistory = buildHistory
     }
 
-    private fun TextualDiff.highlightChanges() = onEach { line ->
-        line.innerFragments?.forEach {
-            editor.highlightRange(
-                line.startOffset2 + it.startOffset1,
-                line.startOffset2 + it.endOffset2
-            )
+    private fun TextualDiff.highlightChanges(coveredLines: List<Int>) {
+        onEach { fragment ->
+            ((fragment.startLine2 + 1) until (fragment.endLine2 + 1)).forEach { lineNumber ->
+                if (coveredLines.contains(lineNumber)) {
+                    editor.highlightCoveredAndChangedLine(lineNumber)
+                } else {
+                    editor.highlightChangedLine(lineNumber)
+                }
+            }
         }
     }
 

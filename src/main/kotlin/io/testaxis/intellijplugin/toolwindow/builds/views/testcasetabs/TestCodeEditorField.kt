@@ -2,7 +2,6 @@ package io.testaxis.intellijplugin.toolwindow.builds.views.testcasetabs
 
 import com.intellij.ide.highlighter.HighlighterFactory
 import com.intellij.openapi.editor.EditorFactory
-import com.intellij.openapi.editor.colors.ColorKey
 import com.intellij.openapi.editor.colors.EditorColors
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.ex.EditorEx
@@ -14,9 +13,14 @@ import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiMethod
+import com.intellij.ui.JBColor
 import com.intellij.ui.LanguageTextField
+import java.awt.Color
 
 private const val LINE_HIGHLIGHT_LAYER = 5950
+private const val COVERED_LINE_HIGHLIGHT_LAYER = 5951
+private const val CHANGED_LINE_HIGHLIGHT_LAYER = 5952
+private const val COVERED_AND_CHANGED_LINE_HIGHLIGHT_LAYER = 5953
 private const val FRAGMENT_HIGHLIGHT_LAYER = 5960
 
 class TestCodeEditorField(project: Project) : LanguageTextField(null, project, "PLACEHOLDER") {
@@ -71,31 +75,37 @@ class TestCodeEditorField(project: Project) : LanguageTextField(null, project, "
         document = EditorFactory.getInstance().createDocument(text)
     }
 
-    fun highlightLine(lineNumber: Int) = editor?.markupModel?.addLineHighlighter(
-        lineNumber - 1,
-        LINE_HIGHLIGHT_LAYER,
-        createHighlightAttributes(EditorColors.ADDED_LINES_COLOR)
-    )
+    fun highlightCoveredLine(lineNumber: Int) =
+        editor?.markupModel?.addLineHighlighter(
+            lineNumber - 1,
+            COVERED_LINE_HIGHLIGHT_LAYER,
+            createHighlightAttributes(JBColor.YELLOW.darker())
+        )
 
-    fun highlightRange(startOffset: Int, endOffset: Int, colorKey: ColorKey = EditorColors.MODIFIED_LINES_COLOR) =
-        editor?.markupModel?.addRangeHighlighter(
-            startOffset,
-            endOffset,
-            FRAGMENT_HIGHLIGHT_LAYER,
-            createHighlightAttributes(colorKey),
-            HighlighterTargetArea.EXACT_RANGE
+    fun highlightChangedLine(lineNumber: Int) =
+        editor?.markupModel?.addLineHighlighter(
+            lineNumber - 1,
+            CHANGED_LINE_HIGHLIGHT_LAYER,
+            createHighlightAttributes(JBColor.GREEN.darker().darker())
+        )
+
+    fun highlightCoveredAndChangedLine(lineNumber: Int) =
+        editor?.markupModel?.addLineHighlighter(
+            lineNumber - 1,
+            COVERED_AND_CHANGED_LINE_HIGHLIGHT_LAYER,
+            createHighlightAttributes(JBColor.MAGENTA.darker())
         )
 
     fun highlightElement(element: PsiElement?) = editor?.markupModel?.addRangeHighlighter(
         element?.textRange?.startOffset ?: 0,
         element?.textRange?.endOffset ?: 0,
         LINE_HIGHLIGHT_LAYER,
-        createHighlightAttributes(EditorColors.MODIFIED_LINES_COLOR),
+        createHighlightAttributes(editor?.colorsScheme?.getColor(EditorColors.MODIFIED_LINES_COLOR)),
         HighlighterTargetArea.LINES_IN_RANGE
     )
 
-    private fun createHighlightAttributes(colorKey: ColorKey) = TextAttributes().apply {
-        backgroundColor = editor?.colorsScheme?.getColor(colorKey)
+    private fun createHighlightAttributes(color: Color?) = TextAttributes().apply {
+        backgroundColor = color
         effectType = EffectType.ROUNDED_BOX
     }
 
