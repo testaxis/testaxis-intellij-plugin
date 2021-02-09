@@ -16,7 +16,8 @@ interface SecondaryInformationHolder {
 }
 
 class RootNode(project: Project?, private val builds: List<Build>) : SimpleNode(project) {
-    override fun getChildren() = builds.sortedByDescending { it.id }.map { BuildNode(project, it) }.toTypedArray()
+    override fun getChildren() =
+        builds.sortedByDescending { it.createdAt }.map { BuildNode(project, it) }.toTypedArray()
 
     override fun update(data: PresentationData) {
         super.update(data)
