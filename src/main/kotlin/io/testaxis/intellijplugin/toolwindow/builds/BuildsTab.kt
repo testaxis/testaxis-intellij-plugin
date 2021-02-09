@@ -18,6 +18,7 @@ import io.testaxis.intellijplugin.services.GitService
 import io.testaxis.intellijplugin.services.SettingsNotInitializedException
 import io.testaxis.intellijplugin.toolwindow.Icons
 import io.testaxis.intellijplugin.toolwindow.builds.filters.BranchFilter
+import io.testaxis.intellijplugin.toolwindow.builds.filters.PrFilter
 import io.testaxis.intellijplugin.toolwindow.builds.filters.StatusFilter
 import io.testaxis.intellijplugin.toolwindow.builds.tree.BuildsTree
 import io.testaxis.intellijplugin.toolwindow.builds.views.BuildDetailsRightView
@@ -42,7 +43,8 @@ class BuildsTab(val project: Project) : Disposable {
     private val branchFilter = BranchFilter(project) { updateBuilds() }
     private val filters = listOf(
         branchFilter,
-        StatusFilter { updateBuilds() }
+        StatusFilter { updateBuilds() },
+        PrFilter { updateBuilds() },
     )
 
     private val buildsTree = BuildsTree(project).apply {
