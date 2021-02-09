@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 ### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+## [0.0.3]
+### Added
 - Test code and code under test is now editable from within the plugin
 - A new PR builds filter allows to hide PR builds (enabled by default)
 - The code under test editor now scrolls to the first line that is covered and changed
