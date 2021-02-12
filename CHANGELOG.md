@@ -3,17 +3,10 @@
 # TestAxis IntelliJ Plugin Changelog
 
 ## [Unreleased]
-### Added
 
 ### Changed
+- Improved the layout of test health warnings
 
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
 ## [0.0.3]
 ### Added
 - Test code and code under test is now editable from within the plugin
