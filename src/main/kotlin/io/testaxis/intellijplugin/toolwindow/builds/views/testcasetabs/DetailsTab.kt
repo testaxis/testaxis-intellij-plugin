@@ -24,6 +24,7 @@ import io.testaxis.intellijplugin.toolwindow.borderLayoutPanel
 import io.testaxis.intellijplugin.toolwindow.builds.views.BuildsUpdateHandler
 import io.testaxis.intellijplugin.toolwindow.horizontal
 import io.testaxis.intellijplugin.toolwindow.vertical
+import io.testaxis.intellijplugin.toolwindow.verticalConstraints
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.swing.JComponent
@@ -75,7 +76,17 @@ class DetailsTab(val project: Project) : TestCaseTab, Disposable, BuildsUpdateHa
                         horizontal(testHealthLoadingLabel),
                     )
                 )
-                addToRight(vertical(timeLabel.apply { horizontalAlignment = SwingConstants.RIGHT }, createdAtLabel))
+                addToRight(
+                    vertical(
+                        vertical(
+                            timeLabel.apply {
+                                horizontalAlignment = SwingConstants.RIGHT
+                                border = EmptyBorder(0, 0, 5, 0)
+                            },
+                            createdAtLabel
+                        )
+                    )
+                )
             }
         )
         add(failureContentConsole.component.apply { border = EmptyBorder(20, 0, 0, 0) })
@@ -149,7 +160,7 @@ class DetailsTab(val project: Project) : TestCaseTab, Disposable, BuildsUpdateHa
                 border = EmptyBorder(10, 0, 0, 0)
             }
 
-        testHealthPanel.add(panel)
+        testHealthPanel.add(panel, verticalConstraints())
     }
 
     override fun handleNewBuilds(buildHistory: List<Build>) {
