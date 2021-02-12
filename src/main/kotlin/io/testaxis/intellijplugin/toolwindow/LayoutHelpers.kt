@@ -23,22 +23,23 @@ fun vertical(
     JPanel().apply {
         layout = GridBagLayout()
 
-        val componentConstraints = GridBagConstraints().apply {
-            weightx = 1.0
-            fill = GridBagConstraints.HORIZONTAL
-            gridwidth = GridBagConstraints.REMAINDER
-
-            anchor = GridBagConstraints.NORTH
-            weighty = 1.0
-
-            constraints()
-        }
-
         components.forEach {
-            add(it, componentConstraints)
+            add(it, verticalConstraints(constraints))
         }
 
         applyContent()
+    }
+
+fun verticalConstraints(constraints: GridBagConstraints.() -> Unit = {}) =
+    GridBagConstraints().apply {
+        weightx = 1.0
+        fill = GridBagConstraints.HORIZONTAL
+        gridwidth = GridBagConstraints.REMAINDER
+
+        anchor = GridBagConstraints.NORTH
+        weighty = 1.0
+
+        constraints()
     }
 
 fun horizontal(vararg components: JComponent, hgap: Int = 5, applyContent: JPanel.() -> Unit = {}): JPanel =
