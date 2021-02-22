@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+### Added
+- Code under test files that are both covered and changed now have a special label 
+
+### Changed
+- The code under test files are now sorted by "covered and changed"
+
+## [0.0.4]
+
 ### Changed
 - Improved the layout of test health warnings
 
