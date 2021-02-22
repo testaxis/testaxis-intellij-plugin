@@ -20,6 +20,7 @@ import io.testaxis.intellijplugin.toolwindow.builds.views.BuildsUpdateHandler
 import io.testaxis.intellijplugin.toolwindow.horizontal
 import io.testaxis.intellijplugin.vcs.CoveredFile
 import io.testaxis.intellijplugin.vcs.TextualDiff
+import io.testaxis.intellijplugin.vcs.changedLines
 import io.testaxis.intellijplugin.vcs.coveredFiles
 import io.testaxis.intellijplugin.vcs.deletions
 import io.testaxis.intellijplugin.vcs.textualDiff
@@ -91,7 +92,7 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
                 showFullDiffButton.replaceActionListener { project.service<GitService>().showDiff(change) }
 
                 val changeList = change.textualDiff()
-                changeList.changedAndCoveredLines(coveredFile.lines).run {
+                coveredFile.changedAndCoveredLines().run {
                     forEach(editor::highlightCoveredAndChangedLine)
                     editor.moveCaretToLine(maxOf((firstOrNull() ?: 0) + SCROLL_WINDOW_START, 0))
                 }
@@ -147,25 +148,6 @@ class CodeUnderTestTab(val project: Project) : TestCaseTab, BuildsUpdateHandler 
 
     override fun handleNewBuilds(buildHistory: List<Build>) {
         this.buildHistory = buildHistory
-    }
-
-    private fun TextualDiff.changedLines() = this
-        .map { fragment -> ((fragment.startLine2 + 1) until (fragment.endLine2 + 1)) }
-        .flatMap { range -> range.toList() }
-
-    private fun TextualDiff.changedAndCoveredLines(coveredLines: List<Int>) =
-        changedLines().filter { coveredLines.contains(it) }
-
-    private fun TextualDiff.highlightChanges(coveredLines: List<Int>) {
-        onEach { fragment ->
-            ((fragment.startLine2 + 1) until (fragment.endLine2 + 1)).forEach { lineNumber ->
-                if (coveredLines.contains(lineNumber)) {
-                    editor.highlightCoveredAndChangedLine(lineNumber)
-                } else {
-                    editor.highlightChangedLine(lineNumber)
-                }
-            }
-        }
     }
 
     private fun TextualDiff.giveOptionalDeletionsWarning() = deletions().let {

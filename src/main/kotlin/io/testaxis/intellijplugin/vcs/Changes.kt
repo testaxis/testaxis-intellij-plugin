@@ -37,13 +37,16 @@ typealias TextualDiff = List<LineFragment>
 
 private val textualDiffCache = mutableMapOf<Change, TextualDiff>()
 
-fun Change.textualDiff(): TextualDiff = textualDiffCache.computeIfAbsent(this) {
-    ComparisonManager.getInstance().compareLinesInner(
-        beforeRevision?.content ?: error("Diff can only be applied to modified files."),
-        afterRevision?.content ?: error("Diff can only be applied to modified files."),
-        ComparisonPolicy.DEFAULT,
-        DumbProgressIndicator.INSTANCE
-    )
+fun Change.textualDiff(): TextualDiff {
+    if (!textualDiffCache.containsKey(this)) {
+        textualDiffCache[this] = ComparisonManager.getInstance().compareLinesInner(
+            beforeRevision?.content ?: error("Diff can only be applied to modified files."),
+            afterRevision?.content ?: error("Diff can only be applied to modified files."),
+            ComparisonPolicy.DEFAULT,
+            DumbProgressIndicator.INSTANCE
+        )
+    }
+    return textualDiffCache[this]!! // The null-assertion is safe because we never remove items from the map
 }
 
 fun TextualDiff.deletions() = sumBy { line ->
@@ -53,3 +56,7 @@ fun TextualDiff.deletions() = sumBy { line ->
         line.innerFragments?.count { it.startOffset2 == it.endOffset2 } ?: 0
     }
 }
+
+fun TextualDiff.changedLines() = this
+    .map { fragment -> ((fragment.startLine2 + 1) until (fragment.endLine2 + 1)) }
+    .flatMap { range -> range.toList() }

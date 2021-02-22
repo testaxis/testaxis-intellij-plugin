@@ -4,6 +4,7 @@ import com.intellij.openapi.vcs.changes.Change
 import com.intellij.ui.JBColor
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.components.BorderLayoutPanel
+import io.testaxis.intellijplugin.toolwindow.horizontal
 import io.testaxis.intellijplugin.vcs.CoveredFile
 import java.awt.Color
 import java.awt.Component
@@ -46,7 +47,15 @@ internal class CoveredFileCellRenderer : BorderLayoutPanel(), ListCellRenderer<C
             }
         )
 
-        coveredFile.vcsChange?.type?.let { panel.addToRight(createChangeLabel(it)) }
+        coveredFile.vcsChange?.type?.let {
+            panel.addToRight(
+                horizontal(
+                    if (coveredFile.hasCoveredChanges()) createChangesCoveredLabel() else null,
+                    createChangeLabel(it),
+                    hgap = 0
+                )
+            )
+        }
     }
 
     private fun createBottomRow(coveredFile: CoveredFile) =
@@ -58,11 +67,14 @@ internal class CoveredFileCellRenderer : BorderLayoutPanel(), ListCellRenderer<C
         panel.background = changeType.color()
         panel.border = BorderFactory.createEmptyBorder(2, 4, 2, 4)
 
-        panel.add(
-            JLabel(changeType.label()).also {
-                it.foreground = Color.white
-            }
-        )
+        panel.add(JLabel(changeType.label()).also { it.foreground = Color.white })
+    }
+
+    private fun createChangesCoveredLabel() = BorderLayoutPanel().also { panel ->
+        panel.background = TestCodeEditorField.COVERED_AND_CHANGED_LINE_COLOR
+        panel.border = BorderFactory.createEmptyBorder(2, 4, 2, 4)
+
+        panel.add(JLabel("Changes Covered").also { it.foreground = Color.white })
     }
 
     private fun determineBackgroundColor(list: JList<out CoveredFile>, selected: Boolean) =
