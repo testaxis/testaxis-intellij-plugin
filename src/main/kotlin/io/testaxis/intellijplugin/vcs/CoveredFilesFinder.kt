@@ -20,7 +20,7 @@ fun TestCaseExecution.coveredFiles(project: Project, buildHistory: List<Build>):
             details(project)
                 .coveredLines
                 .map { (fileName, lines) -> CoveredFile(fileName, lines, changes?.changeForPartialFileName(fileName)) }
-                .sortedBy { it.vcsChange?.type?.ordinal ?: Int.MAX_VALUE }
+                .sortedBy { (it.vcsChange?.type?.ordinal ?: Int.MAX_VALUE) - if (it.hasCoveredChanges()) 1 else 0 }
         }
 
         coveredFilesCache[this] = coveredFiles
@@ -32,4 +32,11 @@ data class CoveredFile(val fileName: String, val lines: List<Int>, val vcsChange
     fun getFile(project: Project) = project.service<PsiService>().findFileByRelativePath(fileName)
 
     fun name() = fileName.substringAfterLast('/').substringBeforeLast('.')
+
+    fun hasCoveredChanges() = changedAndCoveredLines().isNotEmpty()
+
+    fun changedAndCoveredLines() =
+        if (vcsChange?.type == Change.Type.MODIFICATION) {
+            vcsChange.textualDiff().changedLines().filter { lines.contains(it) }
+        } else emptyList()
 }
