@@ -3,6 +3,18 @@
 # TestAxis IntelliJ Plugin Changelog
 
 ## [Unreleased]
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+## [0.0.5]
 
 ### Added
 - Code under test files that are both covered and changed now have a special label 
