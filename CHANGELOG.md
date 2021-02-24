@@ -12,8 +12,10 @@
 ### Removed
 
 ### Fixed
+* Improve stability by removing the code diff cache
 
 ### Security
+
 ## [0.0.5]
 
 ### Added

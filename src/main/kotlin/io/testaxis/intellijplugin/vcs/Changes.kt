@@ -35,19 +35,12 @@ data class ChangesList(val changes: List<Change>) {
 
 typealias TextualDiff = List<LineFragment>
 
-private val textualDiffCache = mutableMapOf<Change, TextualDiff>()
-
-fun Change.textualDiff(): TextualDiff {
-    if (!textualDiffCache.containsKey(this)) {
-        textualDiffCache[this] = ComparisonManager.getInstance().compareLinesInner(
-            beforeRevision?.content ?: error("Diff can only be applied to modified files."),
-            afterRevision?.content ?: error("Diff can only be applied to modified files."),
-            ComparisonPolicy.DEFAULT,
-            DumbProgressIndicator.INSTANCE
-        )
-    }
-    return textualDiffCache[this]!! // The null-assertion is safe because we never remove items from the map
-}
+fun Change.textualDiff(): TextualDiff = ComparisonManager.getInstance().compareLinesInner(
+    beforeRevision?.content ?: error("Diff can only be applied to modified files."),
+    afterRevision?.content ?: error("Diff can only be applied to modified files."),
+    ComparisonPolicy.DEFAULT,
+    DumbProgressIndicator.INSTANCE
+)
 
 fun TextualDiff.deletions() = sumBy { line ->
     if (line.innerFragments == null) {
